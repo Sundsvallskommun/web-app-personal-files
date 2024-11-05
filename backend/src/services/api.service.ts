@@ -2,6 +2,7 @@ import { HttpException } from '@/exceptions/HttpException';
 import { apiURL } from '@/utils/util';
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import ApiTokenService from './api-token.service';
+import { User } from '@/interfaces/users.interface';
 
 class ApiResponse<T> {
   data: T;
@@ -38,7 +39,7 @@ class ApiService {
     }
   }
 
-  public async get<T>(config: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  public async get<T>(config: AxiosRequestConfig, user: User): Promise<ApiResponse<T>> {
     return this.request<T>({ ...config, method: 'GET' });
   }
 
