@@ -1,8 +1,10 @@
-import { CookieConsent, Footer, Header, Link } from '@sk-web-gui/react';
+import { CookieConsent, Footer, Header, Link, Avatar } from '@sk-web-gui/react';
 import Head from 'next/head';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
+import { apiURL } from '@utils/api-url';
+import { useUserStore } from '@services/user-service/user-service';
 
 interface DefaultLayoutProps {
   children: React.ReactNode;
@@ -30,6 +32,7 @@ export default function DefaultLayout({
   const fullTitle = postTitle ? `${layoutTitle} - ${postTitle}` : `${layoutTitle}`;
 
   const { t } = useTranslation();
+  const user = useUserStore((s) => s.user);
 
   const setFocusToMain = () => {
     const contentElement = document.getElementById('content');
@@ -59,6 +62,12 @@ export default function DefaultLayout({
         subtitle={headerSubtitle ? headerSubtitle : ''}
         aria-label={`${headerTitle ? headerTitle : process.env.NEXT_PUBLIC_APP_NAME} ${headerSubtitle}`}
         logoLinkOnClick={handleLogoClick}
+        userMenu={
+          <div className="flex gap-12 items-center">
+            <Avatar imageURL={`${apiURL(`/user/avatar?width=${44}`)}`} />
+            <span className="font-bold">{user.name}</span>
+          </div>
+        }
         LogoLinkWrapperComponent={<NextLink legacyBehavior href={logoLinkHref} passHref />}
       />
 

@@ -44,7 +44,7 @@ export class EmployeeController {
     return { data: res.data, message: 'success' };
   }
 
-  @Get('/portalpersondata/:personId/employmentdata')
+  @Get('/portalpersondata/:personId/employeeEmployments')
   @OpenAPI({ summary: 'Fetch employed user information' })
   @UseBefore(authMiddleware)
   async employeeEmployments(
@@ -52,7 +52,7 @@ export class EmployeeController {
     @Param('personId') personId: string,
     @Res() response: any,
   ): Promise<{ data: Employee; message: string }> {
-    const url = `employee/1.0/employments?personId=${personId}`;
+    const url = `employee/1.0/employments?filter={"personId":"${personId}"}`;
     const res = await this.apiService.get<Employee>({ url }, req.user).catch(e => {
       logger.error('Error when fetching users employments');
       throw e;
