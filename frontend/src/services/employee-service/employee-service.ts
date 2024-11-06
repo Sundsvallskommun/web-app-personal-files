@@ -1,5 +1,10 @@
-import { Employee, LoginName } from '@interfaces/employee/employee';
+import { Employee, LoginName, PortalPersonData } from '@interfaces/employee/employee';
 import { ApiResponse, apiService } from '@services/api-service';
+import { emptyEmployee } from './defaults';
+import { createWithEqualityFn } from 'zustand/traditional';
+import { devtools, persist } from 'zustand/middleware';
+import { ServiceResponse } from '@interfaces/services';
+import { __DEV__ } from '@sk-web-gui/react';
 
 const luhnCheck = (str = ''): boolean => {
   str = str?.replace('-', '');
@@ -28,37 +33,26 @@ export const setAdministrationCode: (orgTree: string) => string | {} = (orgTree)
   };
 };
 
-export const searchADUser: (username: string, domain?: string) => Promise<Employee> = async (
-  username: string,
-  domain?: string
-) => {
-  if (!domain) {
-    domain = 'PERSONAL';
-  }
+export const searchHitADUser: (personId: string) => Promise<any> = async (personId: string) => {
+  return await apiService
+    .get<any>(`/portalpersondata/${personId}/employeeEmployments`)
+    .then((res) => {
+      return res.data.data;
+    })
+    .catch((e) => {
+      console.error('Something went wrong when fetching AD user på id');
+      throw e;
+    });
+};
 
+export const searchADUserByUsername: (username: string) => Promise<any> = async (username: string) => {
   return await apiService
     .get<any>(`/portalpersondata/personal/${username}`)
     .then((res) => {
-      return {
-        personId: res.data.data.personid,
-        firstName: res.data.data.givenname,
-        lastName: res.data.data.lastname,
-        email: res.data.data.email,
-        phone: res.data.data.mobilePhone,
-        workPhone: res.data.data.workPhone,
-        organizationName: '',
-        street: res.data.data.street,
-        city: res.data.data.city,
-        zip: res.data.data.postalCode,
-        careof: res.data.data.careof,
-        loginName: res.data.data.loginName,
-        company: res.data.data.company,
-        orgTree: res.data.data.orgTree,
-        metadata: setAdministrationCode(res.data.data.orgTree),
-      } as Employee;
+      return res.data.data;
     })
     .catch((e) => {
-      console.error('Something went wrong when fetching AD-user');
+      console.error('Something went wrong when fetching AD user på username');
       throw e;
     });
 };
@@ -68,14 +62,67 @@ export async function searchADUserByPersonNumber(personalNumber: string) {
       Promise.resolve([])
     : await apiService
         .get<ApiResponse<LoginName[]>>(`portalpersondata/${personalNumber}/loginname`)
-        .then((res) => res.data.data)
-        .then(async (res) => {
-          if (res.length > 1) {
-            const promises = res.map((user) => searchADUser(user.loginName, user.domain));
-            const results = await Promise.all(promises);
-            return results;
-          } else {
-            return searchADUser(res[0].loginName, res[0].domain);
-          }
+        .then((res) => {
+          return res.data.data;
+        })
+        .then((res) => {
+          return searchADUserByUsername(res[0].loginName);
         });
 }
+
+interface State {
+  employee: Employee[];
+}
+interface Actions {
+  setEmployee: (employee: Employee[]) => void;
+  getADUserEmployments: (personalNumber: string) => Promise<ServiceResponse<Employee[]>>;
+  reset: () => void;
+}
+
+const initialState: State = {
+  employee: [],
+};
+
+export const useEmployeeStore = createWithEqualityFn<
+  State & Actions,
+  [
+    ['zustand/devtools', never],
+    [
+      'zustand/persist',
+      {
+        employee: Employee[];
+      },
+    ],
+  ]
+>(
+  devtools(
+    persist(
+      (set, get) => ({
+        ...initialState,
+        setEmployee: (employee) => set(() => ({ employee })),
+        getADUserEmployments: async (personalNumber: string) => {
+          let employee = get().employee;
+          const userInfo = await searchADUserByPersonNumber(personalNumber);
+          const res = await searchHitADUser(userInfo.personid);
+
+          if (res) {
+            employee = res;
+            set(() => ({ employee: employee }));
+          }
+          return { data: employee };
+        },
+        reset: () => {
+          set(initialState);
+        },
+      }),
+      {
+        name: 'employee-storage',
+        version: 1,
+        partialize: ({ employee }) => ({
+          employee,
+        }),
+      }
+    ),
+    { enabled: __DEV__ }
+  )
+);
