@@ -1,4 +1,4 @@
-import { Employee, LoginName, PortalPersonData } from '@interfaces/employee/employee';
+import { Employee, Employment, LoginName, PortalPersonData } from '@interfaces/employee/employee';
 import { ApiResponse, apiService } from '@services/api-service';
 import { emptyEmployee } from './defaults';
 import { createWithEqualityFn } from 'zustand/traditional';
@@ -72,15 +72,19 @@ export async function searchADUserByPersonNumber(personalNumber: string) {
 
 interface State {
   employee: Employee[];
+  employmentslist: Employment[];
 }
 interface Actions {
   setEmployee: (employee: Employee[]) => void;
+  setEmployments: (employmentslist: Employment[]) => void;
   getADUserEmployments: (personalNumber: string) => Promise<ServiceResponse<Employee[]>>;
+  getEmploymentsById: (personId: string) => Promise<ServiceResponse<Employee[]>>;
   reset: () => void;
 }
 
 const initialState: State = {
   employee: [],
+  employmentslist: [],
 };
 
 export const useEmployeeStore = createWithEqualityFn<
@@ -91,6 +95,7 @@ export const useEmployeeStore = createWithEqualityFn<
       'zustand/persist',
       {
         employee: Employee[];
+        employmentslist: Employment[];
       },
     ],
   ]
@@ -100,6 +105,7 @@ export const useEmployeeStore = createWithEqualityFn<
       (set, get) => ({
         ...initialState,
         setEmployee: (employee) => set(() => ({ employee })),
+        setEmployments: (employmentslist) => set(() => ({ employmentslist })),
         getADUserEmployments: async (personalNumber: string) => {
           let employee = get().employee;
           const userInfo = await searchADUserByPersonNumber(personalNumber);
@@ -111,6 +117,16 @@ export const useEmployeeStore = createWithEqualityFn<
           }
           return { data: employee };
         },
+        getEmploymentsById: async (personId: string) => {
+          let employee = get().employee;
+          const res = await searchHitADUser(personId);
+          if (res) {
+            employee = res;
+
+            set(() => ({ employee: employee }));
+          }
+          return { data: employee };
+        },
         reset: () => {
           set(initialState);
         },
@@ -118,8 +134,9 @@ export const useEmployeeStore = createWithEqualityFn<
       {
         name: 'employee-storage',
         version: 1,
-        partialize: ({ employee }) => ({
+        partialize: ({ employee, employmentslist }) => ({
           employee,
+          employmentslist,
         }),
       }
     ),
