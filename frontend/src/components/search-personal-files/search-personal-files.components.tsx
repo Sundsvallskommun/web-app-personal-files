@@ -14,7 +14,8 @@ export const SearchPersonalFiles: React.FC = () => {
   const setEmploymentslist = useEmployeeStore((s) => s.setEmployments);
   const employmentslist = useEmployeeStore((s) => s.employmentslist);
   const getADUserEmployments = useEmployeeStore((s) => s.getADUserEmployments);
-  const employeeEmployments = useEmployeeStore((s) => s.employee);
+  const employeeUsersEmployments = useEmployeeStore((s) => s.employeeUsersEmployments);
+  const setSelectedEmployment = useEmployeeStore((s) => s.setSelectedEmployment);
   const { t } = useTranslation();
   const router = useRouter();
 
@@ -26,10 +27,10 @@ export const SearchPersonalFiles: React.FC = () => {
   };
 
   useEffect(() => {
-    if (employeeEmployments.length && query.length < 13) {
+    if (employeeUsersEmployments.length && query.length < 13) {
       setIsSearch(false);
     }
-  }, [employeeEmployments, query]);
+  }, [employeeUsersEmployments, query]);
 
   useEffect(() => {
     if (query.length > 0) {
@@ -46,14 +47,14 @@ export const SearchPersonalFiles: React.FC = () => {
   useEffect(() => {
     const employments = [];
 
-    employeeEmployments.map((users) =>
+    employeeUsersEmployments.map((users) =>
       users.employments.map((emp) => {
         employments.push(emp);
       })
     );
 
     setEmploymentslist(employments);
-  }, [employeeEmployments]);
+  }, [employeeUsersEmployments]);
 
   return (
     <>
@@ -82,7 +83,7 @@ export const SearchPersonalFiles: React.FC = () => {
           </FormErrorMessage>
         : <></>}
       </div>
-      {isSearch && !employeeEmployments.length ?
+      {isSearch && !employeeUsersEmployments.length ?
         <Spinner size={6} />
       : isSearch ?
         <Table className="max-w-[590px] w-full" background={true}>
@@ -96,15 +97,18 @@ export const SearchPersonalFiles: React.FC = () => {
             <Table.Row>
               <Table.Column>
                 <span className="font-bold">
-                  {employeeEmployments[0].givenname} {employeeEmployments[0].lastname}
+                  {employeeUsersEmployments[0].givenname} {employeeUsersEmployments[0].lastname}
                 </span>
               </Table.Column>
-              <Table.Column>{employeeEmployments[0].personNumber}</Table.Column>
+              <Table.Column>{employeeUsersEmployments[0].personNumber}</Table.Column>
               <Table.Column>{employmentslist.length} st</Table.Column>
               <Table.Column>
                 <Button
                   variant="tertiary"
-                  onClick={() => router.push(`sok-personakt/personakt/${employeeEmployments[0].personId}`)}
+                  onClick={() => {
+                    setSelectedEmployment(employmentslist[0]);
+                    router.push(`sok-personakt/personakt/${employeeUsersEmployments[0].personId}`);
+                  }}
                 >
                   Öppna personakt
                 </Button>
