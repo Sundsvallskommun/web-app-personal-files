@@ -1,7 +1,17 @@
 import { useUserStore } from '@services/user-service/user-service';
 import { useTranslation } from 'next-i18next';
 import { useEffect, useState } from 'react';
-import { SearchField, FormLabel, Spinner, Table, Button, Icon, FormErrorMessage, Link } from '@sk-web-gui/react';
+import {
+  SearchField,
+  FormLabel,
+  Spinner,
+  Table,
+  Button,
+  Icon,
+  FormErrorMessage,
+  Link,
+  useSnackbar,
+} from '@sk-web-gui/react';
 import { useEmployeeStore } from '@services/employee-service/employee-service';
 import { CornerDownRight } from 'lucide-react';
 import { useRouter } from 'next/router';
@@ -18,12 +28,22 @@ export const SearchPersonalFiles: React.FC = () => {
   const setSelectedEmployment = useEmployeeStore((s) => s.setSelectedEmployment);
   const { t } = useTranslation();
   const router = useRouter();
+  const toastMessage = useSnackbar();
 
   const searchResultOfAD = () => {
     const personalNumber = query.replace('-', '');
-    getADUserEmployments(personalNumber).then(() => {
-      setIsSearch(true);
-    });
+    getADUserEmployments(personalNumber)
+      .then(() => {
+        setIsSearch(true);
+      })
+      .catch((e) => {
+        toastMessage({
+          position: 'bottom',
+          closeable: false,
+          message: 'Det gick inte att hitta någon personakt under det här personnumret',
+          status: 'error',
+        });
+      });
   };
 
   useEffect(() => {
