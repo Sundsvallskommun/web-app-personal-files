@@ -4,11 +4,10 @@ import { EmploymentsTab } from '@components/personal-file/tabs/employments-tab.c
 import DefaultLayout from '@layouts/default-layout/default-layout.component';
 import Main from '@layouts/main/main.component';
 import { searchHitADUser, useEmployeeStore } from '@services/employee-service/employee-service';
-import { t } from 'i18next';
-import { default as NextLink } from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import { Divider } from '@sk-web-gui/react';
+import { TabsWrapper } from '@components/personal-file/tabs/tabs-wrapper.components';
 
 export default function Personakt() {
   const router = useRouter();
@@ -57,7 +56,7 @@ export default function Personakt() {
           </div>
         </div>
         <div className="max-w-[996px] w-full m-auto">
-          <EmploymentsTab />
+          <TabsWrapper />
         </div>
       </Main>
     </DefaultLayout>
