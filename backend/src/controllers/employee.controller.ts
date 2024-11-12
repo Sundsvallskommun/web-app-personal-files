@@ -44,10 +44,10 @@ export class EmployeeController {
     return { data: res.data, message: 'success' };
   }
 
-  @Get('/portalpersondata/:personId/employeeEmployments')
+  @Get('/portalpersondata/:personId/employeeUsersEmployments')
   @OpenAPI({ summary: 'Fetch employed user information' })
   @UseBefore(authMiddleware)
-  async employeeEmployments(
+  async employeeUsersEmployments(
     @Req() req: RequestWithUser,
     @Param('personId') personId: string,
     @Res() response: any,

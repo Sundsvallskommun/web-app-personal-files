@@ -1,4 +1,4 @@
-import { Employee, LoginName, PortalPersonData } from '@interfaces/employee/employee';
+import { Employee, Employment, LoginName, PortalPersonData } from '@interfaces/employee/employee';
 import { ApiResponse, apiService } from '@services/api-service';
 import { emptyEmployee } from './defaults';
 import { createWithEqualityFn } from 'zustand/traditional';
@@ -35,7 +35,7 @@ export const setAdministrationCode: (orgTree: string) => string | {} = (orgTree)
 
 export const searchHitADUser: (personId: string) => Promise<any> = async (personId: string) => {
   return await apiService
-    .get<any>(`/portalpersondata/${personId}/employeeEmployments`)
+    .get<any>(`/portalpersondata/${personId}/employeeUsersEmployments`)
     .then((res) => {
       return res.data.data;
     })
@@ -71,16 +71,23 @@ export async function searchADUserByPersonNumber(personalNumber: string) {
 }
 
 interface State {
-  employee: Employee[];
+  selectedEmployment: Employment;
+  employeeUsersEmployments: Employee[];
+  employmentslist: Employment[];
 }
 interface Actions {
+  setSelectedEmployment: (selectedEmployment: Employment) => void;
   setEmployee: (employee: Employee[]) => void;
+  setEmployments: (employmentslist: Employment[]) => void;
   getADUserEmployments: (personalNumber: string) => Promise<ServiceResponse<Employee[]>>;
+  getEmploymentsById: (personId: string) => Promise<ServiceResponse<Employee[]>>;
   reset: () => void;
 }
 
 const initialState: State = {
-  employee: [],
+  selectedEmployment: {},
+  employeeUsersEmployments: [],
+  employmentslist: [],
 };
 
 export const useEmployeeStore = createWithEqualityFn<
@@ -90,7 +97,9 @@ export const useEmployeeStore = createWithEqualityFn<
     [
       'zustand/persist',
       {
-        employee: Employee[];
+        selectedEmployment: Employment;
+        employeeUsersEmployments: Employee[];
+        employmentslist: Employment[];
       },
     ],
   ]
@@ -99,17 +108,29 @@ export const useEmployeeStore = createWithEqualityFn<
     persist(
       (set, get) => ({
         ...initialState,
-        setEmployee: (employee) => set(() => ({ employee })),
+        setSelectedEmployment: (selectedEmployment) => set(() => ({ selectedEmployment })),
+        setEmployee: (employeeUsersEmployments) => set(() => ({ employeeUsersEmployments })),
+        setEmployments: (employmentslist) => set(() => ({ employmentslist })),
         getADUserEmployments: async (personalNumber: string) => {
-          let employee = get().employee;
+          let employeeUsersEmployments = get().employeeUsersEmployments;
           const userInfo = await searchADUserByPersonNumber(personalNumber);
           const res = await searchHitADUser(userInfo.personid);
 
           if (res) {
-            employee = res;
-            set(() => ({ employee: employee }));
+            employeeUsersEmployments = res;
+            set(() => ({ employeeUsersEmployments: employeeUsersEmployments }));
           }
-          return { data: employee };
+          return { data: employeeUsersEmployments };
+        },
+        getEmploymentsById: async (personId: string) => {
+          let employeeUsersEmployments = get().employeeUsersEmployments;
+          const res = await searchHitADUser(personId);
+          if (res) {
+            employeeUsersEmployments = res;
+
+            set(() => ({ employeeUsersEmployments: employeeUsersEmployments }));
+          }
+          return { data: employeeUsersEmployments };
         },
         reset: () => {
           set(initialState);
@@ -118,8 +139,10 @@ export const useEmployeeStore = createWithEqualityFn<
       {
         name: 'employee-storage',
         version: 1,
-        partialize: ({ employee }) => ({
-          employee,
+        partialize: ({ employeeUsersEmployments, employmentslist, selectedEmployment }) => ({
+          employeeUsersEmployments,
+          employmentslist,
+          selectedEmployment,
         }),
       }
     ),

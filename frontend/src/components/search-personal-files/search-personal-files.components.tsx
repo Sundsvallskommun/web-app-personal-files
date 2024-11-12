@@ -1,18 +1,23 @@
 import { useUserStore } from '@services/user-service/user-service';
 import { useTranslation } from 'next-i18next';
 import { useEffect, useState } from 'react';
-import { SearchField, FormLabel, Spinner, Table, Button, Icon } from '@sk-web-gui/react';
+import { SearchField, FormLabel, Spinner, Table, Button, Icon, FormErrorMessage, Link } from '@sk-web-gui/react';
 import { useEmployeeStore } from '@services/employee-service/employee-service';
 import { CornerDownRight } from 'lucide-react';
+import { useRouter } from 'next/router';
 
-export const SearchPersonalFiles = () => {
+export const SearchPersonalFiles: React.FC = () => {
   const [query, setQuery] = useState<string>('');
   const [isSearch, setIsSearch] = useState(false);
+  const [message, setMessage] = useState('');
   const user = useUserStore((s) => s.user);
+  const setEmploymentslist = useEmployeeStore((s) => s.setEmployments);
+  const employmentslist = useEmployeeStore((s) => s.employmentslist);
   const getADUserEmployments = useEmployeeStore((s) => s.getADUserEmployments);
-  const employeeEmployments = useEmployeeStore((s) => s.employee);
+  const employeeUsersEmployments = useEmployeeStore((s) => s.employeeUsersEmployments);
+  const setSelectedEmployment = useEmployeeStore((s) => s.setSelectedEmployment);
   const { t } = useTranslation();
-  console.log('user', query);
+  const router = useRouter();
 
   const searchResultOfAD = () => {
     const personalNumber = query.replace('-', '');
@@ -22,10 +27,34 @@ export const SearchPersonalFiles = () => {
   };
 
   useEffect(() => {
-    if (employeeEmployments.length && query.length < 13) {
+    if (employeeUsersEmployments.length && query.length < 13) {
       setIsSearch(false);
     }
-  }, [employeeEmployments, query]);
+  }, [employeeUsersEmployments, query]);
+
+  useEffect(() => {
+    if (query.length > 0) {
+      if (query.includes('/[a-zA-Z]/') || query.length < 13 || query[8] !== '-') {
+        setMessage('Personnumret måste innehålla siffror och efterlikna följande struktur: YYYYMMDD-XXXX');
+      } else {
+        setMessage('');
+      }
+    } else {
+      setMessage('');
+    }
+  }, [query]);
+
+  useEffect(() => {
+    const employments = [];
+
+    employeeUsersEmployments.map((users) =>
+      users.employments.map((emp) => {
+        employments.push(emp);
+      })
+    );
+
+    setEmploymentslist(employments);
+  }, [employeeUsersEmployments]);
 
   return (
     <>
@@ -48,34 +77,43 @@ export const SearchPersonalFiles = () => {
             setQuery('');
           }}
         />
+        {message.length ?
+          <FormErrorMessage className="text-error mt-8" data-cy="not-found-error-message">
+            {message}
+          </FormErrorMessage>
+        : <></>}
       </div>
-      {isSearch && !employeeEmployments.length ?
+      {isSearch && !employeeUsersEmployments.length ?
         <Spinner size={6} />
       : isSearch ?
         <Table className="max-w-[590px] w-full" background={true}>
           <Table.Header>
-            <Table.HeaderColumn colSpan={3}>
-              <span className="font-bold">
-                {employeeEmployments[0].givenname} {employeeEmployments[0].lastname} -
-              </span>
-              <span className="font-normal"> {employeeEmployments[0].personNumber}</span>
-            </Table.HeaderColumn>
+            <Table.HeaderColumn>Namn</Table.HeaderColumn>
+            <Table.HeaderColumn>Personnummer</Table.HeaderColumn>
+            <Table.HeaderColumn>Anställningar</Table.HeaderColumn>
+            <Table.HeaderColumn className="hidden">Knapp Öppna personakt</Table.HeaderColumn>
           </Table.Header>
           <Table.Body>
-            {employeeEmployments.map((employeeUsers) =>
-              employeeUsers.employments.map((employment, idx) => {
-                return (
-                  <Table.Row key={`emprow-${idx}`}>
-                    <Table.Column>
-                      <Icon icon={<CornerDownRight />} />
-                      <Button variant="link">{employment.title}</Button>
-                    </Table.Column>
-                    <Table.Column>{employment.orgName}</Table.Column>
-                    <Table.Column>{employment.formOfEmploymentId}</Table.Column>
-                  </Table.Row>
-                );
-              })
-            )}
+            <Table.Row>
+              <Table.Column>
+                <span className="font-bold">
+                  {employeeUsersEmployments[0].givenname} {employeeUsersEmployments[0].lastname}
+                </span>
+              </Table.Column>
+              <Table.Column>{employeeUsersEmployments[0].personNumber}</Table.Column>
+              <Table.Column>{employmentslist.length} st</Table.Column>
+              <Table.Column>
+                <Button
+                  variant="tertiary"
+                  onClick={() => {
+                    setSelectedEmployment(employmentslist[0]);
+                    router.push(`sok-personakt/personakt/${employeeUsersEmployments[0].personId}`);
+                  }}
+                >
+                  Öppna personakt
+                </Button>
+              </Table.Column>
+            </Table.Row>
           </Table.Body>
         </Table>
       : <p>I denna version kan du enbart söka personakter för timavlönade.</p>}

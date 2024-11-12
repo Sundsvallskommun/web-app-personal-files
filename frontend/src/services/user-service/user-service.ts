@@ -9,6 +9,8 @@ import { User } from '@data-contracts/backend/data-contracts';
 const handleSetUserResponse: (res: ApiResponse<User>) => User = (res) => ({
   name: res.data.name,
   username: res.data.username,
+  givenName: res.data.givenName,
+  surname: res.data.surname,
   // permissions: res.data.permissions,
 });
 
@@ -56,3 +58,12 @@ export const useUserStore = createWithEqualityFn<State & Actions>()(
     { enabled: __DEV__ }
   )
 );
+
+export const getAvatar: (width: string) => Promise<string> = (width) => {
+  return apiService
+    .get<ApiResponse<string>>(`user/avatar?width=${width}`)
+    .then((res) => res.data.data)
+    .catch((err) => {
+      return Promise.reject(err.response?.data?.message);
+    });
+};
