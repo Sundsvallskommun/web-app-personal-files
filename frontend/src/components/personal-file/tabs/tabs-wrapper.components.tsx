@@ -15,11 +15,12 @@ export const TabsWrapper: React.FC = () => {
     },
   ];
 
-  const [current, setCurrent] = useState<number | undefined>(0);
+  // const [current, setCurrent] = useState<number | undefined>(0);
+  // let currentTab = current;
+  // NOTE: Above might be needed later when more tabs...
 
-  let currentTab = current;
   return (
-    <Tabs tabslistClassName="-m-b-12 flex-wrap" onTabChange={() => {}} currentTab={currentTab}>
+    <Tabs tabslistClassName="-m-b-12 flex-wrap">
       {tabs.map((tab) => {
         return (
           <Tabs.Item key={tab.label}>
