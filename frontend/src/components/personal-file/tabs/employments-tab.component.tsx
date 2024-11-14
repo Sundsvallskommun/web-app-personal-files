@@ -20,21 +20,29 @@ export const EmploymentsTab: React.FC = () => {
                   <div className="flex flex-col gap-24">
                     <div className="flex flex-col">
                       <FormLabel>Titel</FormLabel>
-                      <Label inverted>{selectedEmployment.title}</Label>
+                      <Label className="w-fit" inverted>
+                        {selectedEmployment.title}
+                      </Label>
                     </div>
                     <div className="flex flex-col">
                       <FormLabel>Avdelning</FormLabel>
-                      <Label inverted>{selectedEmployment.orgName}</Label>
+                      <Label className="w-fit" inverted>
+                        {selectedEmployment.orgName}
+                      </Label>
                     </div>
                   </div>
                   <div className="flex flex-col gap-24">
                     <div className="flex flex-col">
                       <FormLabel>Verksamhet</FormLabel>
-                      <Label inverted>{selectedEmployment.topOrgName}</Label>
+                      <Label className="w-fit" inverted>
+                        {selectedEmployment.topOrgName}
+                      </Label>
                     </div>
                     <div className="flex flex-col">
                       <FormLabel>Legal enhet</FormLabel>
-                      <Label inverted>{selectedEmployment.companyId}</Label>
+                      <Label className="w-fit" inverted>
+                        {selectedEmployment.companyId}
+                      </Label>
                     </div>
                   </div>
                 </div>

@@ -1,9 +1,8 @@
 import { PersonalFileEmploymentFilter } from '@components/personal-file/personal-file-employment-filter.components';
 import { PersonalFileUploadDocument } from '@components/personal-file/personal-file-upload-document.component';
-import { EmploymentsTab } from '@components/personal-file/tabs/employments-tab.component';
 import DefaultLayout from '@layouts/default-layout/default-layout.component';
 import Main from '@layouts/main/main.component';
-import { searchHitADUser, useEmployeeStore } from '@services/employee-service/employee-service';
+import { useEmployeeStore } from '@services/employee-service/employee-service';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import { Divider } from '@sk-web-gui/react';
@@ -15,11 +14,6 @@ export default function Personakt() {
   const employeeUsersEmployments = useEmployeeStore((s) => s.employeeUsersEmployments);
   const getEmploymentsById = useEmployeeStore((s) => s.getEmploymentsById);
   const personId = routerPersonId && Array.isArray(routerPersonId) ? routerPersonId.pop() : null;
-
-  const selectedEmployment = useEmployeeStore((s) => s.selectedEmployment);
-  const setSelectedEmployment = useEmployeeStore((s) => s.setSelectedEmployment);
-
-  console.log(selectedEmployment);
 
   useEffect(() => {
     const loadClass = async () => {
