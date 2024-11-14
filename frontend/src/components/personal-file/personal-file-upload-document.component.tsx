@@ -31,7 +31,6 @@ export const PersonalFileUploadDocument: React.FC = () => {
 
   const attachment = watch('attachment');
 
-  console.log(getValues());
   return (
     <div>
       <Button variant="tertiary" onClick={() => setIsOpen(true)}>
