@@ -16,6 +16,7 @@
     "test:coverage": "jest --watchAll --coverage"
   },
   "dependencies": {
+    "@hookform/resolvers": "^2.8.8",
     "@next/bundle-analyzer": "^14.2.2",
     "@sk-web-gui/core": "2.3.0",
     "@sk-web-gui/react": "1.2.15",
@@ -33,7 +34,7 @@
     "sass": "^1.75.0",
     "sharp": "^0.33.3",
     "underscore.string": "^3.3.6",
-    "yup": "^1.4.0",
+    "yup": "^0.32.11",
     "zustand": "^4.5.2"
   },
   "dependenciesComments": {

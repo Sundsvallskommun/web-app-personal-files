@@ -1,12 +1,17 @@
 import { Button, Modal, FormLabel, FormControl, FileUpload, Select, Input } from '@sk-web-gui/react';
 import { useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 
 export interface PersonalFileUploadDocumentFormModel {
-  id?: string;
   attachment: File;
   attachmentCatgory: string;
 }
+
+let formSchema = yup.object({
+  attachmentCatgory: yup.string().required(),
+});
 
 export const PersonalFileUploadDocument: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,7 +30,11 @@ export const PersonalFileUploadDocument: React.FC = () => {
     formState,
     formState: { errors, isDirty },
   } = useForm<PersonalFileUploadDocumentFormModel>({
-    // resolver: yupResolver(formSchema),
+    resolver: yupResolver(formSchema),
+    defaultValues: {
+      attachment: undefined,
+      attachmentCatgory: '',
+    },
     mode: 'onChange', // NOTE: Needed if we want to disable submit until valid
   });
 
@@ -78,7 +87,9 @@ export const PersonalFileUploadDocument: React.FC = () => {
             className="w-full"
             disabled={
               (!formState.dirtyFields.attachment && !formState.dirtyFields.attachmentCatgory) ||
-              getValues().attachmentCatgory === undefined
+              getValues().attachment === undefined ||
+              getValues().attachmentCatgory === undefined ||
+              !getValues().attachmentCatgory.length
             }
           >
             {' '}
