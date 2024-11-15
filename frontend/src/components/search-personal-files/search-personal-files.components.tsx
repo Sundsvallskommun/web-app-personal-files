@@ -55,7 +55,7 @@ export const SearchPersonalFiles: React.FC = () => {
   useEffect(() => {
     if (query.length > 0) {
       if (query.includes('/[a-zA-Z]/') || query.length < 13 || query[8] !== '-') {
-        setMessage('Personnumret måste innehålla siffror och efterlikna följande struktur: YYYYMMDD-XXXX');
+        setMessage('Personnumret måste innehålla siffror och efterlikna följande struktur: ååååmmdd-nnnn');
       } else {
         setMessage('');
       }
@@ -84,6 +84,7 @@ export const SearchPersonalFiles: React.FC = () => {
           <span className="text-gray-500 font-normal"> (ååååmmdd-nnnn)</span>
         </FormLabel>
         <SearchField
+          data-cy="searchfield-personalfiles"
           value={query}
           className="mt-8"
           placeholder="Skriv personnummer"
@@ -106,7 +107,7 @@ export const SearchPersonalFiles: React.FC = () => {
       {isSearch && !employeeUsersEmployments.length ?
         <Spinner size={6} />
       : isSearch ?
-        <Table className="max-w-[590px] w-full" background={true}>
+        <Table data-cy="personalfile-result-table" className="max-w-[590px] w-full" background={true}>
           <Table.Header>
             <Table.HeaderColumn>Namn</Table.HeaderColumn>
             <Table.HeaderColumn>Personnummer</Table.HeaderColumn>
@@ -115,14 +116,14 @@ export const SearchPersonalFiles: React.FC = () => {
           </Table.Header>
           <Table.Body>
             <Table.Row>
-              <Table.Column>
+              <Table.Column data-cy={`pf-name`}>
                 <span className="font-bold">
                   {employeeUsersEmployments[0].givenname} {employeeUsersEmployments[0].lastname}
                 </span>
               </Table.Column>
-              <Table.Column>{employeeUsersEmployments[0].personNumber}</Table.Column>
-              <Table.Column>{employmentslist.length} st</Table.Column>
-              <Table.Column>
+              <Table.Column data-cy={`pf-personnumber`}>{employeeUsersEmployments[0].personNumber}</Table.Column>
+              <Table.Column data-cy={`pf-numberofemployments`}>{employmentslist.length} st</Table.Column>
+              <Table.Column data-cy={`pf-openbutton`}>
                 <Button
                   variant="tertiary"
                   onClick={() => {

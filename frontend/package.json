@@ -16,6 +16,7 @@
     "test:coverage": "jest --watchAll --coverage"
   },
   "dependencies": {
+    "@cypress/code-coverage": "^3.13.6",
     "@hookform/resolvers": "^2.8.8",
     "@next/bundle-analyzer": "^14.2.2",
     "@sk-web-gui/core": "2.3.0",

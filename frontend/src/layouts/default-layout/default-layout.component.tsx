@@ -78,7 +78,7 @@ export default function DefaultLayout({
         logoLinkOnClick={handleLogoClick}
         userMenu={
           <div className="flex gap-12 items-center">
-            <Avatar initials={`${user.givenName[0]}${user.surname[0]}`} imageUrl={image()} />
+            <Avatar data-cy="usermenu" initials={`${user.givenName[0]}${user.surname[0]}`} imageUrl={image()} />
             <span className="font-bold">{user.name}</span>
           </div>
         }
