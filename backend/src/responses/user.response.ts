@@ -1,5 +1,5 @@
 import ApiResponse from '@/interfaces/api-service.interface';
-import { ClientUser } from '@/interfaces/users.interface';
+import { ClientUser, Permissions } from '@/interfaces/users.interface';
 import { Type } from 'class-transformer';
 import { IsString, ValidateNested } from 'class-validator';
 
@@ -17,6 +17,10 @@ export class User implements ClientUser {
   givenName: string;
   @IsString()
   surname: string;
+  @IsString()
+  groups: string;
+  @Type(() => Permissions)
+  permissions: Permissions;
   // @IsEnum(InternalRoleEnum)
   // role: InternalRole;
   // @ValidateNested()

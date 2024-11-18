@@ -83,7 +83,7 @@ const samlStrategy = new Strategy(
         message: 'Missing SAML profile',
       });
     }
-    const { givenName, surname, citizenIdentifier, username } = profile;
+    const { givenName, surname, citizenIdentifier, username, groups, permissions } = profile;
 
     if (!givenName || !surname || !citizenIdentifier) {
       return done({
@@ -115,11 +115,13 @@ const samlStrategy = new Strategy(
       // }
 
       const findUser: User = {
-        // personId: personId,
+        personId: citizenIdentifier,
         username: username,
         name: `${givenName} ${surname}`,
         givenName: givenName,
         surname: surname,
+        groups: groups,
+        permissions: permissions,
       };
 
       done(null, findUser);

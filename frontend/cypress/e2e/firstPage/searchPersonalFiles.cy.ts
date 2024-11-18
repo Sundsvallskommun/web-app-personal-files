@@ -1,7 +1,7 @@
 import { mockEmployee } from 'cypress/fixtures/mockEmployee';
 import { mockMe } from 'cypress/fixtures/mockMe';
 
-describe('Serach personal files', () => {
+describe('Search personal files', () => {
   beforeEach(() => {
     cy.intercept('GET', '**/me', mockMe);
     cy.visit('http://localhost:3000/sok-personakt');
