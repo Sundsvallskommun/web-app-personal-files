@@ -12,4 +12,8 @@ export const APIS = [
     name: 'citizen',
     version: '2.0',
   },
+  {
+    name: 'documents',
+    version: '3.0',
+  },
 ] as const;

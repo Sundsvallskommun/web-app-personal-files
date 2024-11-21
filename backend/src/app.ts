@@ -115,7 +115,7 @@ const samlStrategy = new Strategy(
       // }
 
       const findUser: User = {
-        // personId: personId,
+        personId: citizenIdentifier,
         username: username,
         name: `${givenName} ${surname}`,
         givenName: givenName,
