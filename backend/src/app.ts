@@ -45,6 +45,7 @@ import { join } from 'path';
 import { isValidUrl } from './utils/util';
 import { additionalConverters } from './utils/custom-validation-classes';
 import { User } from './interfaces/users.interface';
+import { authorizeGroups, getPermissions } from './services/authorization.service';
 
 const SessionStoreCreate = SESSION_MEMORY ? createMemoryStore(session) : createFileStore(session);
 const sessionTTL = 4 * 24 * 60 * 60;
@@ -92,6 +93,19 @@ const samlStrategy = new Strategy(
       });
     }
 
+    //NOTE: Enable when auth group usage is certain
+    // if (!authorizeGroups(groups)) {
+    //   logger.error('Group authorization failed. Is the user a member of the authorized groups?');
+    //   return done(null, null, {
+    //     name: 'SAML_MISSING_GROUP',
+    //     message: 'SAML_MISSING_GROUP',
+    //   });
+    // }
+
+    const groupList: string[] = groups !== undefined ? (groups.split(',').map(x => x.toLowerCase()) as string[]) : [];
+
+    const appGroups: string[] = groupList.length > 0 ? groupList : [];
+
     //   const groupList: ADRole[] =
     //   groups !== undefined
     //     ? (groups
@@ -114,14 +128,14 @@ const samlStrategy = new Strategy(
       //   });
       // }
 
-      const findUser: User = {
+      const findUser = {
         personId: citizenIdentifier,
         username: username,
         name: `${givenName} ${surname}`,
         givenName: givenName,
         surname: surname,
-        groups: groups,
-        permissions: permissions,
+        groups: appGroups,
+        permissions: getPermissions(appGroups),
       };
 
       done(null, findUser);

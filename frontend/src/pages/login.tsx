@@ -54,11 +54,17 @@ export default function Start() {
         // autologin
         onLogin();
       } else if (failMessage) {
-        setErrorMessage(t(`login:errors.${failMessage}`));
+        if (router.query?.failMessage === 'SAML_MISSING_GROUP') {
+          setErrorMessage('Användaren saknar rätt grupper');
+        } else if (router.query?.failMessage === 'SAML_MISSING_ATTRIBUTES') {
+          setErrorMessage('Användaren saknar attribut');
+        } else if (router.query?.failMessage === 'Missing profile attributes') {
+          setErrorMessage('Användaren saknar rätt attribut');
+        }
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.isReady]);
+  }, [router.isReady, router]);
 
   if (!mounted && !failMessage) {
     // to not flash the login-screen on autologin
