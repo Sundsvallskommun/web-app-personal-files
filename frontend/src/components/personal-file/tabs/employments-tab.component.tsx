@@ -1,3 +1,4 @@
+import { MetaData } from '@interfaces/document/document';
 import { useDocumentStore } from '@services/document-service/document-service';
 import { useEmployeeStore } from '@services/employee-service/employee-service';
 import { Disclosure, FormLabel, Label, Accordion, Table, Divider, Spinner } from '@sk-web-gui/react';
@@ -6,13 +7,32 @@ import { useEffect } from 'react';
 export const EmploymentsTab: React.FC = () => {
   const employmentslist = useEmployeeStore((s) => s.employmentslist);
   const selectedEmployment = useEmployeeStore((s) => s.selectedEmployment);
+  const employeeUsersEmployments = useEmployeeStore((s) => s.employeeUsersEmployments);
   const getDocumentList = useDocumentStore((s) => s.getDocumentList);
   const documentListIsLoading = useDocumentStore((s) => s.documentsIsLoading);
   const documentList = useDocumentStore((s) => s.documentList);
+  const getDocumentTypes = useDocumentStore((s) => s.getDocumentTypes);
 
   useEffect(() => {
-    getDocumentList('id');
+    getDocumentTypes();
   }, []);
+
+  //NOTE: activate when employmentId is implemented in API Employee
+  // useEffect(() => {
+  //   const metadata: MetaData = [
+  //     {
+  //      key: 'employmentId',
+  //      matchesAny: ['123'],
+  //      matchesAll: [],
+  //     },
+  //     {
+  //      key: 'partyId',
+  //      matchesAny: [employeeUsersEmployments[0].personNumber],
+  //      matchesAll: [],
+  //    },
+  //  ]
+  //   getDocumentList(metadata);
+  // }, [employeeUsersEmployments]);
 
   return selectedEmployment ?
       <div>

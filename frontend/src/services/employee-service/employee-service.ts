@@ -61,7 +61,7 @@ export async function searchADUserByPersonNumber(personalNumber: string) {
   return !isValidPersonalNumber(personalNumber) ?
       Promise.resolve([])
     : await apiService
-        .get<ApiResponse<LoginName[]>>(`portalpersondata/${personalNumber}/loginname`)
+        .get<ApiResponse<LoginName[]>>(`/portalpersondata/${personalNumber}/loginname`)
         .then((res) => {
           return res.data.data;
         })

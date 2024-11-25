@@ -13,7 +13,7 @@ export const APIS = [
     version: '2.0',
   },
   {
-    name: 'documents',
+    name: 'document',
     version: '3.0',
   },
 ] as const;

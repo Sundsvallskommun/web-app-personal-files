@@ -1,8 +1,12 @@
-import { Button, Modal, FormLabel, FormControl, FileUpload, Select, Input } from '@sk-web-gui/react';
-import { useState } from 'react';
+import { Button, Modal, FormLabel, FormControl, FileUpload, Select, Input, useSnackbar } from '@sk-web-gui/react';
+import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import { useDocumentStore } from '@services/document-service/document-service';
+import { useUserStore } from '@services/user-service/user-service';
+import { CreateDocument } from '@interfaces/document/document';
+import { useEmployeeStore } from '@services/employee-service/employee-service';
 
 export interface PersonalFileUploadDocumentFormModel {
   attachment: File;
@@ -15,9 +19,79 @@ let formSchema = yup.object({
 
 export const PersonalFileUploadDocument: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const uploadDocument = useDocumentStore((s) => s.uploadDocument);
+  const getDocuments = useDocumentStore((s) => s.getDocumentList);
+  const documentTypes = useDocumentStore((s) => s.documentTypes);
+  const user = useUserStore((s) => s.user);
+  const selectedEmployment = useEmployeeStore((s) => s.selectedEmployment);
+  const employeeUsersEmployments = useEmployeeStore((s) => s.employeeUsersEmployments);
+
+  const toastMessage = useSnackbar();
+
   const closeHandler = () => {
     reset();
     setIsOpen(false);
+  };
+
+  console.log(documentTypes);
+
+  //NOTE: Use on upload button in modal when emp Id is implemented in employee API, also chnage emp data when fetching documents
+  const submitHandler = () => {
+    const body: CreateDocument = {
+      createdBy: user.username,
+      confidentiality: {
+        confidential: true,
+        legalCitation: '25 kap. 1 § OSL',
+      },
+      archive: false,
+      description: 'Dokument anställning',
+      metadataList: [
+        {
+          key: 'employmentId',
+          value: '123',
+        },
+        {
+          key: 'partyId',
+          value: [employeeUsersEmployments[0].personNumber],
+        },
+      ],
+      type: 'EMPLOYMENT_CERTIFICATE',
+    };
+
+    uploadDocument(body)
+      .then(async (res) => {
+        if (res.data) {
+          toastMessage({
+            position: 'bottom',
+            closeable: false,
+            message: 'Dokumentet laddades upp',
+            status: 'success',
+          });
+
+          await getDocuments([
+            {
+              key: 'employmentId',
+              matchesAny: ['123'],
+              matchesAll: [],
+            },
+            {
+              key: 'partyId',
+              matchesAny: [employeeUsersEmployments[0].personNumber],
+              matchesAll: [],
+            },
+          ]);
+          closeHandler();
+          reset();
+        }
+      })
+      .catch((e) => {
+        toastMessage({
+          position: 'bottom',
+          closeable: false,
+          message: 'Dokumentet gick inte att ladda upp',
+          status: 'error',
+        });
+      });
   };
 
   const {
@@ -64,7 +138,7 @@ export const PersonalFileUploadDocument: React.FC = () => {
               />
               <Input
                 className="w-full"
-                value={getValues()?.attachment ? getValues()?.attachment[0].name : ''}
+                value={getValues()?.attachment ? getValues()?.attachment[0]?.name : undefined}
                 readOnly
                 placeholder="Bläddra bland dokument"
               />
@@ -74,11 +148,16 @@ export const PersonalFileUploadDocument: React.FC = () => {
             <FormLabel className="text-label-small">Tilldela kategori</FormLabel>
             <Select
               onChange={(e) => setValue('attachmentCatgory', e.target.value, { shouldDirty: true })}
-              value={getValues()?.attachmentCatgory}
+              // value={documentTypes?.find((x) => x.type === getValues().attachmentCatgory)?.displayName}
+              value="banan"
               className="w-full"
             >
               <Select.Option>Välj kategori</Select.Option>
-              <Select.Option value={'Banan'}>Banan</Select.Option>
+              {/* {documentTypes?.map((type, idx) => {
+                <Select.Option key={`type-${idx}`} value={type.type}>
+                  {type.displayName}
+                </Select.Option>;
+              })} */}
             </Select>
           </FormControl>
         </Modal.Content>
