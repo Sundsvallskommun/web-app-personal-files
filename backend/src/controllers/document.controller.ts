@@ -42,8 +42,8 @@ export class DocumentController {
   async getDocuments(@Req() req: RequestWithUser, @Body() documentData: SearchDocument): Promise<{ data: SearchDocument; message: string }> {
     await validateRequestBody(SearchDocument, documentData);
 
-    const url = 'document/3.0/2281/documents';
-    const response = await this.apiService.post<SearchDocument>({ url, data: documentData }, req.user).catch(e => {
+    const url = 'document/3.0/2281/documents/filter';
+    const response = await this.apiService.post<any>({ url, data: documentData }, req.user).catch(e => {
       logger.error('document post error:', e);
       throw e;
     });

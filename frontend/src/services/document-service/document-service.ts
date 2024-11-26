@@ -12,19 +12,18 @@ import {
   DocumentType,
 } from '@interfaces/document/document';
 
-export const getDocuments: (metaData: MetaData[]) => Promise<any> = async (metaData: MetaData[]) => {
+export const getDocuments: (metaData: MetaData[]) => Promise<Document[]> = async (metaData: MetaData[]) => {
   const body: SearchDocument = {
     page: 1,
     limit: 1100,
     sortBy: ['propertyName'],
-    sortDirection: Direction.ASC,
     includeConfidential: true,
     onlyLatestRevision: true,
     documentTypes: ['PDF'],
     metaData: metaData,
   };
   return await apiService
-    .post<any>(`/document/search`, body)
+    .post<Document[]>(`/document/search`, body)
     .then((res) => {
       return res.data;
     })

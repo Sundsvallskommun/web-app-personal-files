@@ -20,21 +20,21 @@ export const EmploymentsTab: React.FC = () => {
   }, []);
 
   //NOTE: activate when employmentId is implemented in API Employee
-  // useEffect(() => {
-  //   const metadata: MetaData = [
-  //     {
-  //      key: 'employmentId',
-  //      matchesAny: ['123'],
-  //      matchesAll: [],
-  //     },
-  //     {
-  //      key: 'partyId',
-  //      matchesAny: [employeeUsersEmployments[0].personId],
-  //      matchesAll: [],
-  //    },
-  //  ]
-  //   getDocumentList(metadata);
-  // }, [employeeUsersEmployments]);
+  useEffect(() => {
+    const metadata: MetaData[] = [
+      {
+        key: 'employmentId',
+        matchesAny: [selectedEmployment.empRowId],
+        matchesAll: [selectedEmployment.empRowId],
+      },
+      {
+        key: 'personId',
+        matchesAny: [employeeUsersEmployments[0].personId],
+        matchesAll: [employeeUsersEmployments[0].personId],
+      },
+    ];
+    getDocumentList(metadata);
+  }, [employeeUsersEmployments]);
 
   return selectedEmployment ?
       <div>

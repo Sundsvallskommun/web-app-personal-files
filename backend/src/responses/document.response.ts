@@ -114,7 +114,6 @@ export class SearchDocument implements _SearchDocument {
   limit: number;
   @IsArray()
   sortBy: string[];
-  sortDirection: Direction;
   @IsBoolean()
   includeConfidential: boolean;
   @IsBoolean()

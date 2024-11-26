@@ -69,7 +69,7 @@ export const PersonalFileUploadDocument: React.FC = () => {
           await getDocuments([
             {
               key: 'employmentId',
-              matchesAny: ['123'],
+              matchesAny: [selectedEmployment.empRowId],
               matchesAll: [],
             },
             {

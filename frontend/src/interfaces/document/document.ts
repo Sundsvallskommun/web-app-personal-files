@@ -62,7 +62,6 @@ export interface SearchDocument {
   page: number;
   limit: number;
   sortBy: string[];
-  sortDirection: Direction;
   includeConfidential: boolean;
   onlyLatestRevision: boolean;
   documentTypes: string[];
