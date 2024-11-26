@@ -1,8 +1,10 @@
 import { MetaData } from '@interfaces/document/document';
 import { useDocumentStore } from '@services/document-service/document-service';
 import { useEmployeeStore } from '@services/employee-service/employee-service';
-import { Disclosure, FormLabel, Label, Accordion, Table, Divider, Spinner } from '@sk-web-gui/react';
+import { Disclosure, FormLabel, Label, Accordion, Table, Divider, Spinner, Icon, Button } from '@sk-web-gui/react';
 import { useEffect } from 'react';
+import { File, Trash } from 'lucide-react';
+import dayjs from 'dayjs';
 
 export const EmploymentsTab: React.FC = () => {
   const employmentslist = useEmployeeStore((s) => s.employmentslist);
@@ -84,7 +86,32 @@ export const EmploymentsTab: React.FC = () => {
                     <Spinner size={4} />
                   : documentList.length === 0 ?
                     <span>Inga dokument finns att visa</span>
-                  : <span>Lista</span>}
+                  : documentList.map((document) => {
+                      const dateTime = () => {
+                        const date = dayjs(document.created).date();
+                        const month = new Date(document.created).toLocaleString('default', { month: 'long' });
+                        const year = dayjs(document.created).year();
+                        const time = dayjs(document.created).format('HH.mm');
+                        const dateTime = `${date} ${month} ${year} kl.${time}`;
+                        return dateTime;
+                      };
+                      return (
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-8">
+                            <div className={`self-center bg-vattjom-surface-accent p-12 rounded w-fit`}>
+                              <Icon icon={<File />} size={24} />
+                            </div>
+                            <p>
+                              <strong className="block">{document.documentData[0].fileName}</strong> {dateTime()}
+                            </p>
+                          </div>
+                          <Button variant="ghost">
+                            <Icon icon={<Trash />} />
+                          </Button>
+                        </div>
+                      );
+                    })
+                  }
                 </div>
               </Table.Column>
             </Table.Row>
