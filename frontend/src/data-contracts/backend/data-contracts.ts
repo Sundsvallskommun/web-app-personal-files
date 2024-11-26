@@ -20,3 +20,61 @@ export interface UserApiResponse {
   data: User;
   message: string;
 }
+
+export interface PageDocument {
+  _meta: object;
+}
+
+export interface MetadataList {
+  key?: string;
+}
+
+export interface Confidentiality {
+  confidential?: boolean;
+  legalCitation?: string;
+}
+
+export interface DocumentData {
+  id?: string;
+  fileName?: string;
+  mimeType?: string;
+  fileSizeInBytes?: number;
+}
+
+export interface Document {
+  id?: string;
+  municipalityId?: string;
+  registrationNumber?: string;
+  revision?: number;
+  confidentiality?: object;
+  description?: string;
+  created?: string;
+  createdBy?: string;
+  archive?: boolean;
+  metadataList?: any[];
+  documentData?: any[];
+  type?: string;
+}
+
+export interface CreateDocument {
+  createdBy: string;
+  confidentiality: object;
+  archive: boolean;
+  description: string;
+  type: string;
+}
+
+export interface SearchDocument {
+  page: number;
+  limit: number;
+  sortBy: any[];
+  includeConfidential: boolean;
+  onlyLatestRevision: boolean;
+  documentTypes: any[];
+  metaData: any[];
+}
+
+export interface DocumentType {
+  type: string;
+  displayName: string;
+}

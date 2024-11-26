@@ -100,6 +100,7 @@ export const PersonalFileUploadDocument: React.FC = () => {
     setValue,
     getValues,
     formState,
+    trigger,
     formState: { errors, isDirty },
   } = useForm<PersonalFileUploadDocumentFormModel>({
     resolver: yupResolver(formSchema),
@@ -146,8 +147,9 @@ export const PersonalFileUploadDocument: React.FC = () => {
             <Select
               onChange={(e) => {
                 setValue('attachmentCatgory', e.target.value, { shouldDirty: true });
+                trigger('attachmentCatgory');
               }}
-              value={getValues().attachmentCatgory || ''}
+              value={getValues().attachmentCatgory ? getValues().attachmentCatgory : ''}
               className="w-full"
             >
               {documentTypes?.map((type, idx) => {
