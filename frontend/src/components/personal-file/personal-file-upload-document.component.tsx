@@ -33,9 +33,7 @@ export const PersonalFileUploadDocument: React.FC = () => {
     setIsOpen(false);
   };
 
-  console.log(documentTypes);
-
-  //NOTE: Use on upload button in modal when emp Id is implemented in employee API, also chnage emp data when fetching documents
+  //NOTE: Use on upload button in modal when emp Id is implemented in employee API, also change emp data when fetching documents
   const submitHandler = () => {
     const body: CreateDocument = {
       createdBy: user.username,
@@ -44,7 +42,7 @@ export const PersonalFileUploadDocument: React.FC = () => {
         legalCitation: '25 kap. 1 § OSL',
       },
       archive: false,
-      description: 'Dokument anställning',
+      description: '',
       metadataList: [
         {
           key: 'employmentId',
@@ -52,13 +50,13 @@ export const PersonalFileUploadDocument: React.FC = () => {
         },
         {
           key: 'partyId',
-          value: [employeeUsersEmployments[0].personNumber],
+          value: [employeeUsersEmployments[0].personId],
         },
       ],
-      type: 'EMPLOYMENT_CERTIFICATE',
+      type: getValues().attachmentCatgory,
     };
 
-    uploadDocument(body)
+    uploadDocument(body, getValues().attachment)
       .then(async (res) => {
         if (res.data) {
           toastMessage({
@@ -76,7 +74,7 @@ export const PersonalFileUploadDocument: React.FC = () => {
             },
             {
               key: 'partyId',
-              matchesAny: [employeeUsersEmployments[0].personNumber],
+              matchesAny: [employeeUsersEmployments[0].personId],
               matchesAll: [],
             },
           ]);
@@ -106,8 +104,7 @@ export const PersonalFileUploadDocument: React.FC = () => {
   } = useForm<PersonalFileUploadDocumentFormModel>({
     resolver: yupResolver(formSchema),
     defaultValues: {
-      attachment: undefined,
-      attachmentCatgory: '',
+      attachmentCatgory: 'EMPLOYMENT_CERTIFICATE',
     },
     mode: 'onChange', // NOTE: Needed if we want to disable submit until valid
   });
@@ -138,7 +135,7 @@ export const PersonalFileUploadDocument: React.FC = () => {
               />
               <Input
                 className="w-full"
-                value={getValues()?.attachment ? getValues()?.attachment[0]?.name : undefined}
+                value={getValues()?.attachment ? getValues()?.attachment[0]?.name : ''}
                 readOnly
                 placeholder="Bläddra bland dokument"
               />
@@ -147,23 +144,28 @@ export const PersonalFileUploadDocument: React.FC = () => {
           <FormControl className="w-full">
             <FormLabel className="text-label-small">Tilldela kategori</FormLabel>
             <Select
-              onChange={(e) => setValue('attachmentCatgory', e.target.value, { shouldDirty: true })}
-              // value={documentTypes?.find((x) => x.type === getValues().attachmentCatgory)?.displayName}
-              value="banan"
+              onChange={(e) => {
+                setValue('attachmentCatgory', e.target.value, { shouldDirty: true });
+              }}
+              value={getValues().attachmentCatgory || ''}
               className="w-full"
             >
-              <Select.Option>Välj kategori</Select.Option>
-              {/* {documentTypes?.map((type, idx) => {
-                <Select.Option key={`type-${idx}`} value={type.type}>
-                  {type.displayName}
-                </Select.Option>;
-              })} */}
+              {documentTypes?.map((type, idx) => {
+                return (
+                  <Select.Option key={`type-${idx}`} value={type.type}>
+                    {type.displayName}
+                  </Select.Option>
+                );
+              })}
             </Select>
           </FormControl>
         </Modal.Content>
         <Modal.Footer>
           <Button
             className="w-full"
+            onClick={() =>
+              alert(`dokument:${getValues().attachment[0].name} kategori:${getValues().attachmentCatgory}`)
+            }
             disabled={
               (!formState.dirtyFields.attachment && !formState.dirtyFields.attachmentCatgory) ||
               getValues().attachment === undefined ||

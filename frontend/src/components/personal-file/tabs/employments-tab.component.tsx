@@ -27,7 +27,7 @@ export const EmploymentsTab: React.FC = () => {
   //     },
   //     {
   //      key: 'partyId',
-  //      matchesAny: [employeeUsersEmployments[0].personNumber],
+  //      matchesAny: [employeeUsersEmployments[0].personId],
   //      matchesAll: [],
   //    },
   //  ]

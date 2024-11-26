@@ -34,9 +34,12 @@ export const getDocuments: (metaData: MetaData[]) => Promise<any> = async (metaD
     });
 };
 
-export const uploadDocument: (body: CreateDocument) => Promise<any> = async (body: CreateDocument) => {
+export const uploadDocument: (body: CreateDocument, file: File) => Promise<any> = async (
+  body: CreateDocument,
+  file: File
+) => {
   return await apiService
-    .post<any>(`/document/upload`, body)
+    .post<any>(`/document/upload`, { body, file })
     .then((res) => {
       return res.data;
     })
@@ -48,9 +51,9 @@ export const uploadDocument: (body: CreateDocument) => Promise<any> = async (bod
 
 export const getDocumentTypes: () => Promise<DocumentType[]> = async () => {
   return await apiService
-    .get<DocumentType[]>('/document/types')
+    .get<any>('/document/types')
     .then((res) => {
-      return res.data;
+      return res.data.data;
     })
     .catch((e) => {
       console.error('Something went wrong when fetching document types');
@@ -67,7 +70,7 @@ interface Actions {
   setDocumentList: (documentList: Document[]) => void;
   setDocumentTypes: (DocumentTypes: DocumentType[]) => void;
   getDocumentList: (metadata: MetaData[]) => Promise<ServiceResponse<Document[]>>;
-  uploadDocument: (UploadBody: CreateDocument) => Promise<ServiceResponse<any>>;
+  uploadDocument: (UploadBody: CreateDocument, file: File) => Promise<ServiceResponse<any>>;
   getDocumentTypes: () => Promise<ServiceResponse<DocumentType[]>>;
   reset: () => void;
 }
@@ -108,8 +111,8 @@ export const useDocumentStore = createWithEqualityFn<
 
           return { data: documents };
         },
-        uploadDocument: async (body: CreateDocument) => {
-          const res = await uploadDocument(body);
+        uploadDocument: async (body: CreateDocument, file: File) => {
+          const res = await uploadDocument(body, file);
           return { data: res };
         },
         getDocumentTypes: async () => {
