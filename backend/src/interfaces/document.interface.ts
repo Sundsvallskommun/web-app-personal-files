@@ -19,7 +19,7 @@ export interface PageDocument {
   };
 }
 
-export interface MetadataList {
+export interface DocumentMetadata {
   key: string;
   value: any;
 }
@@ -53,30 +53,28 @@ export interface Document {
   created?: string;
   createdBy?: string;
   archive?: boolean;
-  metadataList?: MetadataList[];
+  metadataList?: DocumentMetadata[];
   documentData?: DocumentData[];
   type?: string;
 }
 
 export interface CreateDocument {
   createdBy: string;
-  confidentiality: {
-    confidential: boolean;
-    legalCitation: string;
-  };
+  confidentiality: Confidentiality;
   archive: boolean;
   description: string;
-  metadataList: MetadataList[];
+  metadataList: DocumentMetadata[];
   type: string;
 }
 
 export interface SearchDocument {
   page: number;
   limit: number;
-  sortBy: string[];
+  sortBy?: string[] | null;
+  sortDirection: Direction;
   includeConfidential: boolean;
   onlyLatestRevision: boolean;
-  documentTypes: string[];
+  documentTypes?: string[] | null;
   metaData?: [
     {
       key?: string;

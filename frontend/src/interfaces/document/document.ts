@@ -61,10 +61,11 @@ export interface CreateDocument {
 export interface SearchDocument {
   page: number;
   limit: number;
-  sortBy: string[];
+  sortBy?: string[] | null;
+  sortDirection: Direction;
   includeConfidential: boolean;
   onlyLatestRevision: boolean;
-  documentTypes: string[];
+  documentTypes?: string[] | null;
   metaData?: MetaData[];
 }
 

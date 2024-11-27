@@ -22,14 +22,14 @@ export class DocumentController {
   @UseBefore(authMiddleware)
   async uploadDocument(
     @Req() req: RequestWithUser,
-    @UploadedFile('files', { options: fileUploadOptions, required: false }) files: Express.Multer.File[],
-    @Body() documentData: DocumentCreateRequest,
+    @UploadedFile('documentFiles', { options: fileUploadOptions, required: false }) files: Express.Multer.File[],
+    @Body() document: DocumentCreateRequest,
   ): Promise<{ data: {}; message: string }> {
-    await validateRequestBody(CreateDocument, documentData);
+    await validateRequestBody(CreateDocument, document);
 
     const url = 'document/3.0/2281/documents';
     const documentFiles = files[0].buffer.toString('base64');
-    const response = await this.apiService.post<any>({ url, data: { documentData, documentFiles } }, req.user).catch(e => {
+    const response = await this.apiService.post<any>({ url, data: { document, documentFiles } }, req.user).catch(e => {
       logger.error('document post error:', e);
       throw e;
     });

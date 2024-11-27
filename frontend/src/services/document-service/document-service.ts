@@ -10,22 +10,23 @@ import {
   MetaData,
   SearchDocument,
   DocumentType,
+  PageDocument,
 } from '@interfaces/document/document';
+import { toBase64 } from '@utils/toBase64';
 
-export const getDocuments: (metaData: MetaData[]) => Promise<Document[]> = async (metaData: MetaData[]) => {
+export const getDocuments: (metaData: MetaData[]) => Promise<PageDocument> = async (metaData: MetaData[]) => {
   const body: SearchDocument = {
     page: 1,
-    limit: 1100,
-    sortBy: ['propertyName'],
+    limit: 15,
+    sortDirection: Direction.ASC,
     includeConfidential: true,
     onlyLatestRevision: true,
-    documentTypes: ['PDF'],
     metaData: metaData,
   };
   return await apiService
-    .post<Document[]>(`/document/search`, body)
+    .post<any>(`/document/search`, body)
     .then((res) => {
-      return res.data;
+      return res.data.data;
     })
     .catch((e) => {
       console.error('Something went wrong when fetching employee documents');
@@ -33,12 +34,25 @@ export const getDocuments: (metaData: MetaData[]) => Promise<Document[]> = async
     });
 };
 
-export const uploadDocument: (body: CreateDocument, file: File) => Promise<any> = async (
-  body: CreateDocument,
-  file: File
+export const uploadDocument: (document: CreateDocument, documentFiles: File) => Promise<any> = async (
+  document: CreateDocument,
+  documentFiles: File
 ) => {
+  const fileData = await toBase64(documentFiles);
+  const buf = Buffer.from(fileData, 'base64');
+  const blob = new Blob([buf], { type: documentFiles.type });
+
+  const formData = new FormData();
+
+  formData.append(`documentFiles`, blob, fileData);
   return await apiService
-    .post<any>(`/document/upload`, { body, file })
+    .post<any>(
+      `/document/upload`,
+      { ...document, ...formData },
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      }
+    )
     .then((res) => {
       return res.data;
     })
@@ -61,21 +75,21 @@ export const getDocumentTypes: () => Promise<DocumentType[]> = async () => {
 };
 
 interface State {
-  documentList: Document[];
+  documentList: PageDocument;
   documentTypes: DocumentType[];
   documentsIsLoading: boolean;
 }
 interface Actions {
-  setDocumentList: (documentList: Document[]) => void;
+  setDocumentList: (documentList: PageDocument) => void;
   setDocumentTypes: (DocumentTypes: DocumentType[]) => void;
-  getDocumentList: (metadata: MetaData[]) => Promise<ServiceResponse<Document[]>>;
+  getDocumentList: (metadata: MetaData[]) => Promise<ServiceResponse<PageDocument>>;
   uploadDocument: (UploadBody: CreateDocument, file: File) => Promise<ServiceResponse<any>>;
   getDocumentTypes: () => Promise<ServiceResponse<DocumentType[]>>;
   reset: () => void;
 }
 
 const initialState: State = {
-  documentList: [],
+  documentList: {},
   documentTypes: [],
   documentsIsLoading: false,
 };
@@ -87,7 +101,7 @@ export const useDocumentStore = createWithEqualityFn<
     [
       'zustand/persist',
       {
-        documentList: Document[];
+        documentList: PageDocument;
         documentTypes: DocumentType[];
       },
     ],

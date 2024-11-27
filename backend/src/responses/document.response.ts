@@ -1,7 +1,7 @@
 import {
   PageDocument as _PageDocument,
   Document as _Document,
-  MetadataList as _MetadataList,
+  DocumentMetadata as _MetadataList,
   DocumentData as _DocumentData,
   CreateDocument as _CreateDocument,
   SearchDocument as _SearchDocument,
@@ -93,7 +93,7 @@ export class Document implements _Document {
   type?: string | null;
 }
 
-export class CreateDocument implements CreateDocument {
+export class CreateDocument implements _CreateDocument {
   @IsString()
   createdBy: string | null;
   @IsObject()
@@ -112,14 +112,19 @@ export class SearchDocument implements _SearchDocument {
   page: number;
   @IsNumber()
   limit: number;
+  @IsOptional()
   @IsArray()
-  sortBy: string[];
+  sortBy?: string[] | null;
+  @IsString()
+  sortDirection: Direction;
   @IsBoolean()
   includeConfidential: boolean;
   @IsBoolean()
   onlyLatestRevision: boolean;
+  @IsOptional()
   @IsArray()
-  documentTypes: string[];
+  documentTypes?: string[] | null;
+  @IsOptional()
   @IsArray()
   metaData?: [
     {

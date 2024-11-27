@@ -33,65 +33,6 @@ export const PersonalFileUploadDocument: React.FC = () => {
     setIsOpen(false);
   };
 
-  //NOTE: Use on upload button in modal when emp Id is implemented in employee API, also change emp data when fetching documents
-  const submitHandler = () => {
-    const body: CreateDocument = {
-      createdBy: user.username,
-      confidentiality: {
-        confidential: true,
-        legalCitation: '25 kap. 1 § OSL',
-      },
-      archive: false,
-      description: '',
-      metadataList: [
-        {
-          key: 'employmentId',
-          value: '123',
-        },
-        {
-          key: 'partyId',
-          value: [employeeUsersEmployments[0].personId],
-        },
-      ],
-      type: getValues().attachmentCatgory,
-    };
-
-    uploadDocument(body, getValues().attachment)
-      .then(async (res) => {
-        if (res.data) {
-          toastMessage({
-            position: 'bottom',
-            closeable: false,
-            message: 'Dokumentet laddades upp',
-            status: 'success',
-          });
-
-          await getDocuments([
-            {
-              key: 'employmentId',
-              matchesAny: [selectedEmployment.empRowId],
-              matchesAll: [],
-            },
-            {
-              key: 'partyId',
-              matchesAny: [employeeUsersEmployments[0].personId],
-              matchesAll: [],
-            },
-          ]);
-          closeHandler();
-          reset();
-        }
-      })
-      .catch((e) => {
-        toastMessage({
-          position: 'bottom',
-          closeable: false,
-          message: 'Dokumentet gick inte att ladda upp',
-          status: 'error',
-        });
-      });
-  };
-
   const {
     register,
     control,
@@ -165,9 +106,63 @@ export const PersonalFileUploadDocument: React.FC = () => {
         <Modal.Footer>
           <Button
             className="w-full"
-            onClick={() =>
-              alert(`dokument:${getValues().attachment[0].name} kategori:${getValues().attachmentCatgory}`)
-            }
+            onClick={() => {
+              alert(`document:${getValues().attachment[0].name} category:${getValues().attachmentCatgory}`);
+              //NOTE: To be activated
+              // const body: CreateDocument = {
+              //   createdBy: 'KAMO',
+              //   confidentiality: {
+              //     confidential: true,
+              //     legalCitation: '25 kap. 1 § OSL',
+              //   },
+              //   archive: false,
+              //   description: '',
+              //   metadataList: [
+              //     {
+              //       key: 'employmentId',
+              //       value: `${selectedEmployment.empRowId}`,
+              //     },
+              //     {
+              //       key: 'partyId',
+              //       value: `${employeeUsersEmployments[0].personId}`,
+              //     },
+              //   ],
+              //   type: getValues().attachmentCatgory,
+              // };
+
+              // return uploadDocument(body, getValues().attachment[0])
+              //   .then(async (res) => {
+              //     if (res.data) {
+              //       toastMessage({
+              //         position: 'bottom',
+              //         closeable: false,
+              //         message: 'Dokumentet laddades upp',
+              //         status: 'success',
+              //       });
+
+              //       await getDocuments([
+              //         {
+              //           key: 'employmentId',
+              //           matchesAny: [selectedEmployment.empRowId],
+              //         },
+              //         {
+              //           key: 'partyId',
+              //           matchesAny: [employeeUsersEmployments[0].personId],
+              //         },
+              //       ]);
+              //       closeHandler();
+              //       reset();
+              //     }
+              //   })
+              //   .catch((e) => {
+              //     toastMessage({
+              //       position: 'bottom',
+              //       closeable: false,
+              //       message: 'Dokumentet gick inte att ladda upp',
+              //       status: 'error',
+              //     });
+              //   });
+            }}
             disabled={
               (!formState.dirtyFields.attachment && !formState.dirtyFields.attachmentCatgory) ||
               getValues().attachment === undefined ||
