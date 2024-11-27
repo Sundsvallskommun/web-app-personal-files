@@ -13,14 +13,24 @@ export default function Personakt() {
   const routerPersonId = router.query['personId'];
   const employeeUsersEmployments = useEmployeeStore((s) => s.employeeUsersEmployments);
   const getEmploymentsById = useEmployeeStore((s) => s.getEmploymentsById);
+  const setEmploymentslist = useEmployeeStore((s) => s.setEmployments);
   const personId = routerPersonId && Array.isArray(routerPersonId) ? routerPersonId.pop() : null;
 
   useEffect(() => {
-    const loadClass = async () => {
+    const loadPersonalFile = async () => {
       if (personId) {
         if (router.pathname.includes(personId)) return;
-        if (!employeeUsersEmployments.length && employeeUsersEmployments[0].personId !== personId) {
+        if (!employeeUsersEmployments.length || employeeUsersEmployments[0].personId !== personId) {
           await getEmploymentsById(routerPersonId as string);
+          const employments = [];
+
+          employeeUsersEmployments.map((users) =>
+            users.employments.map((emp) => {
+              employments.push(emp);
+            })
+          );
+
+          setEmploymentslist(employments);
         }
       } else {
         if (!personId) {
@@ -30,7 +40,7 @@ export default function Personakt() {
     };
 
     if (router.isReady) {
-      loadClass();
+      loadPersonalFile();
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

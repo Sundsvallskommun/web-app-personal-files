@@ -10,8 +10,8 @@ export const PersonalFileEmploymentFilter: React.FC = () => {
     <div className="flex gap-8 items-center w-full">
       <FormLabel>Visa anställning:</FormLabel>
       <Select
-        value={selectedEmployment.title}
-        onSelect={(e) => setSelectedEmployment(employmentslist.find((x) => (x.title = e.target.value)))}
+        value={selectedEmployment.empRowId}
+        onSelect={(e) => setSelectedEmployment(employmentslist.find((x) => (x.empRowId = e.target.value)))}
       >
         {employmentslist.map((emp, idx) => {
           return (
