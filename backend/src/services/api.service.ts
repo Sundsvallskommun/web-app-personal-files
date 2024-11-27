@@ -43,7 +43,7 @@ class ApiService {
     return this.request<T>({ ...config, method: 'GET' });
   }
 
-  public async post<T>(config: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  public async post<T>(config: AxiosRequestConfig, user: User): Promise<ApiResponse<T>> {
     return this.request<T>({ ...config, method: 'POST' });
   }
 

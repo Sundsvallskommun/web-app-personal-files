@@ -85,6 +85,7 @@ export interface Employment {
   aid?: string | null;
   eventType?: string | null;
   eventInfo?: string | null;
+  empRowId?: string | null;
 }
 
 export interface LoginName {

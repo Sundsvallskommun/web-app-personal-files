@@ -1,8 +1,12 @@
-import { Button, Modal, FormLabel, FormControl, FileUpload, Select, Input } from '@sk-web-gui/react';
-import { useState } from 'react';
+import { Button, Modal, FormLabel, FormControl, FileUpload, Select, Input, useSnackbar } from '@sk-web-gui/react';
+import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import { useDocumentStore } from '@services/document-service/document-service';
+import { useUserStore } from '@services/user-service/user-service';
+import { CreateDocument } from '@interfaces/document/document';
+import { useEmployeeStore } from '@services/employee-service/employee-service';
 
 export interface PersonalFileUploadDocumentFormModel {
   attachment: File;
@@ -15,6 +19,15 @@ let formSchema = yup.object({
 
 export const PersonalFileUploadDocument: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const uploadDocument = useDocumentStore((s) => s.uploadDocument);
+  const getDocuments = useDocumentStore((s) => s.getDocumentList);
+  const documentTypes = useDocumentStore((s) => s.documentTypes);
+  const user = useUserStore((s) => s.user);
+  const selectedEmployment = useEmployeeStore((s) => s.selectedEmployment);
+  const employeeUsersEmployments = useEmployeeStore((s) => s.employeeUsersEmployments);
+
+  const toastMessage = useSnackbar();
+
   const closeHandler = () => {
     reset();
     setIsOpen(false);
@@ -28,12 +41,12 @@ export const PersonalFileUploadDocument: React.FC = () => {
     setValue,
     getValues,
     formState,
+    trigger,
     formState: { errors, isDirty },
   } = useForm<PersonalFileUploadDocumentFormModel>({
     resolver: yupResolver(formSchema),
     defaultValues: {
-      attachment: undefined,
-      attachmentCatgory: '',
+      attachmentCatgory: 'EMPLOYMENT_CERTIFICATE',
     },
     mode: 'onChange', // NOTE: Needed if we want to disable submit until valid
   });
@@ -64,7 +77,7 @@ export const PersonalFileUploadDocument: React.FC = () => {
               />
               <Input
                 className="w-full"
-                value={getValues()?.attachment ? getValues()?.attachment[0].name : ''}
+                value={getValues()?.attachment ? getValues()?.attachment[0]?.name : ''}
                 readOnly
                 placeholder="Bläddra bland dokument"
               />
@@ -73,18 +86,83 @@ export const PersonalFileUploadDocument: React.FC = () => {
           <FormControl className="w-full">
             <FormLabel className="text-label-small">Tilldela kategori</FormLabel>
             <Select
-              onChange={(e) => setValue('attachmentCatgory', e.target.value, { shouldDirty: true })}
-              value={getValues()?.attachmentCatgory}
+              onChange={(e) => {
+                setValue('attachmentCatgory', e.target.value, { shouldDirty: true });
+                trigger('attachmentCatgory');
+              }}
+              value={getValues().attachmentCatgory ? getValues().attachmentCatgory : ''}
               className="w-full"
             >
-              <Select.Option>Välj kategori</Select.Option>
-              <Select.Option value={'Banan'}>Banan</Select.Option>
+              {documentTypes?.map((type, idx) => {
+                return (
+                  <Select.Option key={`type-${idx}`} value={type.type}>
+                    {type.displayName}
+                  </Select.Option>
+                );
+              })}
             </Select>
           </FormControl>
         </Modal.Content>
         <Modal.Footer>
           <Button
             className="w-full"
+            onClick={() => {
+              alert(`document:${getValues().attachment[0].name} category:${getValues().attachmentCatgory}`);
+              //NOTE: To be activated
+              // const body: CreateDocument = {
+              //   createdBy: 'KAMO',
+              //   confidentiality: {
+              //     confidential: true,
+              //     legalCitation: '25 kap. 1 § OSL',
+              //   },
+              //   archive: false,
+              //   description: '',
+              //   metadataList: [
+              //     {
+              //       key: 'employmentId',
+              //       value: `${selectedEmployment.empRowId}`,
+              //     },
+              //     {
+              //       key: 'partyId',
+              //       value: `${employeeUsersEmployments[0].personId}`,
+              //     },
+              //   ],
+              //   type: getValues().attachmentCatgory,
+              // };
+
+              // return uploadDocument(body, getValues().attachment[0])
+              //   .then(async (res) => {
+              //     if (res.data) {
+              //       toastMessage({
+              //         position: 'bottom',
+              //         closeable: false,
+              //         message: 'Dokumentet laddades upp',
+              //         status: 'success',
+              //       });
+
+              //       await getDocuments([
+              //         {
+              //           key: 'employmentId',
+              //           matchesAny: [selectedEmployment.empRowId],
+              //         },
+              //         {
+              //           key: 'partyId',
+              //           matchesAny: [employeeUsersEmployments[0].personId],
+              //         },
+              //       ]);
+              //       closeHandler();
+              //       reset();
+              //     }
+              //   })
+              //   .catch((e) => {
+              //     toastMessage({
+              //       position: 'bottom',
+              //       closeable: false,
+              //       message: 'Dokumentet gick inte att ladda upp',
+              //       status: 'error',
+              //     });
+              //   });
+            }}
             disabled={
               (!formState.dirtyFields.attachment && !formState.dirtyFields.attachmentCatgory) ||
               getValues().attachment === undefined ||

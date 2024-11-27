@@ -1,18 +1,38 @@
+import { MetaData } from '@interfaces/document/document';
 import { useDocumentStore } from '@services/document-service/document-service';
 import { useEmployeeStore } from '@services/employee-service/employee-service';
-import { Disclosure, FormLabel, Label, Accordion, Table, Divider, Spinner } from '@sk-web-gui/react';
+import { Disclosure, FormLabel, Label, Accordion, Table, Divider, Spinner, Icon, Button } from '@sk-web-gui/react';
 import { useEffect } from 'react';
+import { File, Trash } from 'lucide-react';
+import dayjs from 'dayjs';
 
 export const EmploymentsTab: React.FC = () => {
   const employmentslist = useEmployeeStore((s) => s.employmentslist);
   const selectedEmployment = useEmployeeStore((s) => s.selectedEmployment);
+  const employeeUsersEmployments = useEmployeeStore((s) => s.employeeUsersEmployments);
   const getDocumentList = useDocumentStore((s) => s.getDocumentList);
   const documentListIsLoading = useDocumentStore((s) => s.documentsIsLoading);
   const documentList = useDocumentStore((s) => s.documentList);
+  const getDocumentTypes = useDocumentStore((s) => s.getDocumentTypes);
 
   useEffect(() => {
-    getDocumentList('id');
+    getDocumentTypes();
   }, []);
+
+  //NOTE: activate when employmentId is implemented in API Employee
+  useEffect(() => {
+    const metadata: MetaData[] = [
+      {
+        key: 'employmentId',
+        matchesAny: [`${selectedEmployment.empRowId}`],
+      },
+      {
+        key: 'partyId',
+        matchesAny: [`${employeeUsersEmployments[0].personId}`],
+      },
+    ];
+    getDocumentList(metadata);
+  }, [employeeUsersEmployments]);
 
   return selectedEmployment ?
       <div>
@@ -62,9 +82,36 @@ export const EmploymentsTab: React.FC = () => {
                   </div>
                   {documentListIsLoading ?
                     <Spinner size={4} />
-                  : documentList.length === 0 ?
+                  : documentList?.documents?.length === 0 ?
                     <span>Inga dokument finns att visa</span>
-                  : <span>Lista</span>}
+                  : <div>
+                      {documentList?.documents?.map((document, idx) => {
+                        const dateTime = () => {
+                          const date = dayjs(document.created).date();
+                          const month = new Date(document.created).toLocaleString('default', { month: 'long' });
+                          const year = dayjs(document.created).year();
+                          const time = dayjs(document.created).format('HH.mm');
+                          const dateTime = `${date} ${month} ${year} kl.${time}`;
+                          return dateTime;
+                        };
+                        return (
+                          <div className="flex justify-between items-center" key={`document-${idx}`}>
+                            <div className="flex items-center gap-8">
+                              <div className={`self-center bg-vattjom-surface-accent p-12 rounded w-fit`}>
+                                <Icon icon={<File />} size={24} />
+                              </div>
+                              <p>
+                                <strong className="block">{document.documentData[0].fileName}</strong> {dateTime()}
+                              </p>
+                            </div>
+                            <Button variant="ghost">
+                              <Icon icon={<Trash />} />
+                            </Button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  }
                 </div>
               </Table.Column>
             </Table.Row>
