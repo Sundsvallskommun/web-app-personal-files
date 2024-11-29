@@ -84,7 +84,7 @@ export const EmploymentsTab: React.FC = () => {
                     <Spinner size={4} />
                   : documentList?.documents?.length === 0 ?
                     <span>Inga dokument finns att visa</span>
-                  : <div>
+                  : <div className="flex flex-col gap-8">
                       {documentList?.documents?.map((document, idx) => {
                         const dateTime = () => {
                           const date = dayjs(document.created).date();
@@ -95,18 +95,23 @@ export const EmploymentsTab: React.FC = () => {
                           return dateTime;
                         };
                         return (
-                          <div className="flex justify-between items-center" key={`document-${idx}`}>
-                            <div className="flex items-center gap-8">
-                              <div className={`self-center bg-vattjom-surface-accent p-12 rounded w-fit`}>
-                                <Icon icon={<File />} size={24} />
+                          <div key={`document-${idx}`}>
+                            <div className="flex justify-between items-center p-12">
+                              <div className="flex items-center gap-8">
+                                <div className={`self-center bg-vattjom-surface-accent p-12 rounded w-fit`}>
+                                  <Icon icon={<File />} size={24} />
+                                </div>
+                                <p>
+                                  <strong className="block">{document.documentData[0].fileName}</strong> {dateTime()}
+                                </p>
                               </div>
-                              <p>
-                                <strong className="block">{document.documentData[0].fileName}</strong> {dateTime()}
-                              </p>
+                              <Button variant="ghost">
+                                <Icon icon={<Trash />} />
+                              </Button>
                             </div>
-                            <Button variant="ghost">
-                              <Icon icon={<Trash />} />
-                            </Button>
+                            {documentList.documents[documentList.documents.length - 1].id !== document.id ?
+                              <Divider />
+                            : <></>}
                           </div>
                         );
                       })}
