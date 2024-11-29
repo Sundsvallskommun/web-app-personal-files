@@ -34,25 +34,28 @@ export const getDocuments: (metaData: MetaData[]) => Promise<PageDocument> = asy
     });
 };
 
-export const uploadDocument: (document: CreateDocument, documentFiles: File) => Promise<any> = async (
+export const uploadDocument: (document: CreateDocument, file: File) => Promise<any> = async (
   document: CreateDocument,
-  documentFiles: File
+  file: File
 ) => {
-  const fileData = await toBase64(documentFiles);
+  const fileData = await toBase64(file);
   const buf = Buffer.from(fileData, 'base64');
-  const blob = new Blob([buf], { type: documentFiles.type });
+  const blob = new Blob([buf], { type: file.type });
 
   const formData = new FormData();
 
-  formData.append(`documentFiles`, blob, fileData);
+  formData.append(`documentFiles`, blob, file.name);
+  formData.append(`createdBy`, document.createdBy);
+  formData.append(`confidentiality`, JSON.stringify(document.confidentiality));
+  formData.append(`archive`, `${document.archive}`);
+  formData.append(`description`, document.description);
+  formData.append(`metadataList`, JSON.stringify(document.metadataList));
+  formData.append(`type`, document.type);
+
   return await apiService
-    .post<any>(
-      `/document/upload`,
-      { ...document, ...formData },
-      {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      }
-    )
+    .post<CreateDocument>(`/document/upload`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
     .then((res) => {
       return res.data;
     })

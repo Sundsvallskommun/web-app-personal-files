@@ -1,18 +1,14 @@
 import { RequestWithUser } from '@/interfaces/auth.interface';
-import { validationMiddleware } from '@middlewares/validation.middleware';
 import ApiService from '@services/api.service';
 import authMiddleware from '@middlewares/auth.middleware';
-import { IsString } from 'class-validator';
-import { Body, Controller, Get, Param, Post, Req, Res, UploadedFile, UploadedFiles, UseBefore } from 'routing-controllers';
+import { Body, Controller, Get, Param, Post, Req, Res, UploadedFiles, UseBefore } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
-import { formatOrgNr, OrgNumberFormat } from '@/utils/util';
 import { logger } from '@/utils/logger';
-import { Employee, LoginName, PortalPersonData } from '@/interfaces/employee.interface';
 
 import { validateRequestBody } from '@/utils/validate';
 import { fileUploadOptions } from '@/utils/fileUploadOptions';
 import { DocumentCreateRequest } from '@/data-contracts/document/data-contracts';
-import { CreateDocument, SearchDocument, DocumentType } from '@/responses/document.response';
+import { SearchDocument, DocumentType } from '@/responses/document.response';
 @Controller()
 export class DocumentController {
   private apiService = new ApiService();
@@ -22,17 +18,43 @@ export class DocumentController {
   @UseBefore(authMiddleware)
   async uploadDocument(
     @Req() req: RequestWithUser,
-    @UploadedFile('documentFiles', { options: fileUploadOptions, required: false }) files: Express.Multer.File[],
-    @Body() document: DocumentCreateRequest,
-  ): Promise<{ data: {}; message: string }> {
-    await validateRequestBody(CreateDocument, document);
-
+    @UploadedFiles('documentFiles', { options: fileUploadOptions, required: false }) files: Express.Multer.File[],
+    @Body() document: any,
+  ): Promise<{ data: any; message: string }> {
     const url = 'document/3.0/2281/documents';
-    const documentFiles = files[0].buffer.toString('base64');
-    const response = await this.apiService.post<any>({ url, data: { document, documentFiles } }, req.user).catch(e => {
-      logger.error('document post error:', e);
-      throw e;
-    });
+    const docData: DocumentCreateRequest = {
+      createdBy: document.createdBy,
+      confidentiality: JSON.parse(document.confidentiality) as Object,
+      archive: document.archive as boolean,
+      description: document.description,
+      metadataList: JSON.parse(document.metadataList) as [],
+      type: document.type,
+    };
+    const data = new FormData();
+    if (files && files.length > 0) {
+      const blob = new Blob([files[0].buffer], { type: files[0].mimetype });
+      data.append(`documentFiles`, blob, files[0].originalname);
+      data.append('document', JSON.stringify(docData));
+    } else {
+      logger.error('Trying to save attachment without name or data');
+      throw new Error('File missing');
+    }
+
+    const response = await this.apiService
+      .post<{ document: DocumentCreateRequest; documentFiles: File[] }>(
+        {
+          url,
+          data,
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+        req.user,
+      )
+      .catch(e => {
+        logger.error('document post error:', e);
+        throw e;
+      });
     return { data: response.data, message: `document uploaded on employment` };
   }
 
