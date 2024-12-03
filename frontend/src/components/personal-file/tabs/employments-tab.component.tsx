@@ -1,7 +1,7 @@
 import { MetaData } from '@interfaces/document/document';
 import { useDocumentStore } from '@services/document-service/document-service';
 import { useEmployeeStore } from '@services/employee-service/employee-service';
-import { FormLabel, Label, Table, Divider, Spinner, Icon, Button } from '@sk-web-gui/react';
+import { FormLabel, Label, Table, Divider, Spinner, Icon, Button, useConfirm, useSnackbar } from '@sk-web-gui/react';
 import { useEffect } from 'react';
 import { File, Trash } from 'lucide-react';
 import dayjs from 'dayjs';
@@ -11,8 +11,13 @@ export const EmploymentsTab: React.FC = () => {
   const employeeUsersEmployments = useEmployeeStore((s) => s.employeeUsersEmployments);
   const getDocumentList = useDocumentStore((s) => s.getDocumentList);
   const documentListIsLoading = useDocumentStore((s) => s.documentsIsLoading);
+  const deleteDocument = useDocumentStore((s) => s.deleteDocument);
   const documentList = useDocumentStore((s) => s.documentList);
   const getDocumentTypes = useDocumentStore((s) => s.getDocumentTypes);
+  const getDocuments = useDocumentStore((s) => s.getDocumentList);
+
+  const toastMessage = useSnackbar();
+  const deleteConfirm = useConfirm();
 
   useEffect(() => {
     getDocumentTypes();
@@ -106,10 +111,52 @@ export const EmploymentsTab: React.FC = () => {
                                   <Icon icon={<File />} size={24} />
                                 </div>
                                 <p>
-                                  <strong className="block">{document.documentData[0].fileName}</strong> {dateTime()}
+                                  <strong className="block">{document?.documentData[0]?.fileName}</strong> {dateTime()}
                                 </p>
                               </div>
-                              <Button variant="ghost">
+                              <Button
+                                variant="ghost"
+                                onClick={() => {
+                                  deleteConfirm
+                                    .showConfirmation(
+                                      'Är du säker?',
+                                      'Om du tar bort dokumentet försvinner den från anställningen.',
+                                      'Ja',
+                                      'Nej',
+                                      'info',
+                                      'info'
+                                    )
+                                    .then(async (confirmed) => {
+                                      if (confirmed) {
+                                        await deleteDocument(
+                                          document.registrationNumber,
+                                          document.documentData[0].id
+                                        ).then(async (res) => {
+                                          if (res.data) {
+                                            toastMessage({
+                                              position: 'bottom',
+                                              closeable: false,
+                                              message: 'Dokumentet laddades upp',
+                                              status: 'success',
+                                            });
+
+                                            await getDocuments([
+                                              {
+                                                key: 'employmentId',
+                                                matchesAny: [selectedEmployment.empRowId],
+                                              },
+                                              {
+                                                key: 'partyId',
+                                                matchesAny: [employeeUsersEmployments[0].personId],
+                                              },
+                                            ]);
+                                          }
+                                        });
+                                      }
+                                      return confirmed ? () => true : () => {};
+                                    });
+                                }}
+                              >
                                 <Icon icon={<Trash />} />
                               </Button>
                             </div>

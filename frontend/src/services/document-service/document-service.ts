@@ -77,6 +77,19 @@ export const getDocumentTypes: () => Promise<DocumentType[]> = async () => {
     });
 };
 
+export const deleteDocument: (registrationNumber: string, documentDataId: string) => Promise<boolean> = async (
+  registrationNumber,
+  documentDataId
+) => {
+  try {
+    const res = await apiService.delete<boolean>(`/documents/${registrationNumber}/files/${documentDataId}`);
+    return res.data;
+  } catch (e) {
+    console.error('Something went wrong when deleting note');
+    throw e;
+  }
+};
+
 interface State {
   documentList: PageDocument;
   documentTypes: DocumentType[];
@@ -88,6 +101,7 @@ interface Actions {
   getDocumentList: (metadata: MetaData[]) => Promise<ServiceResponse<PageDocument>>;
   uploadDocument: (UploadBody: CreateDocument, file: File) => Promise<ServiceResponse<any>>;
   getDocumentTypes: () => Promise<ServiceResponse<DocumentType[]>>;
+  deleteDocument: (registrationNumber: string, documentDataId: string) => Promise<ServiceResponse<boolean>>;
   reset: () => void;
 }
 
@@ -139,6 +153,13 @@ export const useDocumentStore = createWithEqualityFn<
             set(() => ({ documentTypes: types }));
           }
           return { data: types };
+        },
+        deleteDocument: async (registrationNumber, documentDataId) => {
+          let res;
+          if (registrationNumber && documentDataId) {
+            res = await deleteDocument(registrationNumber, documentDataId);
+          }
+          return { data: res };
         },
         reset: () => {
           set(initialState);
