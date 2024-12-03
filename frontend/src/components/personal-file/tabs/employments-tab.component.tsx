@@ -1,13 +1,12 @@
 import { MetaData } from '@interfaces/document/document';
 import { useDocumentStore } from '@services/document-service/document-service';
 import { useEmployeeStore } from '@services/employee-service/employee-service';
-import { Disclosure, FormLabel, Label, Accordion, Table, Divider, Spinner, Icon, Button } from '@sk-web-gui/react';
+import { FormLabel, Label, Table, Divider, Spinner, Icon, Button } from '@sk-web-gui/react';
 import { useEffect } from 'react';
 import { File, Trash } from 'lucide-react';
 import dayjs from 'dayjs';
 
 export const EmploymentsTab: React.FC = () => {
-  const employmentslist = useEmployeeStore((s) => s.employmentslist);
   const selectedEmployment = useEmployeeStore((s) => s.selectedEmployment);
   const employeeUsersEmployments = useEmployeeStore((s) => s.employeeUsersEmployments);
   const getDocumentList = useDocumentStore((s) => s.getDocumentList);
@@ -32,7 +31,7 @@ export const EmploymentsTab: React.FC = () => {
       },
     ];
     getDocumentList(metadata);
-  }, [employeeUsersEmployments]);
+  }, [employeeUsersEmployments, selectedEmployment]);
 
   return selectedEmployment ?
       <div>
@@ -82,7 +81,12 @@ export const EmploymentsTab: React.FC = () => {
                   </div>
                   {documentListIsLoading ?
                     <Spinner size={4} />
-                  : documentList?.documents?.length === 0 ?
+                  : (
+                    documentList?.documents?.length === 0 ||
+                    !documentList?.documents?.filter((doc) =>
+                      doc.metadataList.find((x) => x.value === selectedEmployment.empRowId)
+                    )
+                  ) ?
                     <span>Inga dokument finns att visa</span>
                   : <div className="flex flex-col gap-8">
                       {documentList?.documents?.map((document, idx) => {

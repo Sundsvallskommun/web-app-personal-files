@@ -10,7 +10,7 @@ import {
   FormErrorMessage,
 } from '@sk-web-gui/react';
 import { useEffect, useState } from 'react';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useDocumentStore } from '@services/document-service/document-service';
@@ -32,7 +32,6 @@ export const PersonalFileUploadDocument: React.FC = () => {
   const uploadDocument = useDocumentStore((s) => s.uploadDocument);
   const getDocuments = useDocumentStore((s) => s.getDocumentList);
   const documentTypes = useDocumentStore((s) => s.documentTypes);
-  const user = useUserStore((s) => s.user);
   const selectedEmployment = useEmployeeStore((s) => s.selectedEmployment);
   const employeeUsersEmployments = useEmployeeStore((s) => s.employeeUsersEmployments);
 
