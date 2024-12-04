@@ -2,9 +2,16 @@ import { MetaData } from '@interfaces/document/document';
 import { useDocumentStore } from '@services/document-service/document-service';
 import { useEmployeeStore } from '@services/employee-service/employee-service';
 import { FormLabel, Label, Table, Divider, Spinner, Icon, Button, useConfirm, useSnackbar } from '@sk-web-gui/react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { File, Trash } from 'lucide-react';
 import dayjs from 'dayjs';
+
+interface documentDataList {
+  fileName: string;
+  registrationNumber: string;
+  id: string;
+  dateTime: string;
+}
 
 export const EmploymentsTab: React.FC = () => {
   const selectedEmployment = useEmployeeStore((s) => s.selectedEmployment);
@@ -14,7 +21,8 @@ export const EmploymentsTab: React.FC = () => {
   const deleteDocument = useDocumentStore((s) => s.deleteDocument);
   const documentList = useDocumentStore((s) => s.documentList);
   const getDocumentTypes = useDocumentStore((s) => s.getDocumentTypes);
-  const getDocuments = useDocumentStore((s) => s.getDocumentList);
+
+  const [documentDataList, setDocumentDataList] = useState<documentDataList[]>([]);
 
   const toastMessage = useSnackbar();
   const deleteConfirm = useConfirm();
@@ -23,7 +31,6 @@ export const EmploymentsTab: React.FC = () => {
     getDocumentTypes();
   }, []);
 
-  //NOTE: activate when employmentId is implemented in API Employee
   useEffect(() => {
     const metadata: MetaData[] = [
       {
@@ -37,6 +44,36 @@ export const EmploymentsTab: React.FC = () => {
     ];
     getDocumentList(metadata);
   }, [employeeUsersEmployments, selectedEmployment]);
+
+  useEffect(() => {
+    const list: documentDataList[] = [];
+    if (documentList?.documents) {
+      documentList.documents
+        .filter((document) => document.metadataList.find((x) => x.value === selectedEmployment.empRowId))
+        .forEach((document) => {
+          const dateTime = () => {
+            const date = dayjs(document.created).date();
+            const month = new Date(document.created).toLocaleString('default', { month: 'long' });
+            const year = dayjs(document.created).year();
+            const time = dayjs(document.created).format('HH.mm');
+            const dateTime = `${date} ${month} ${year} kl.${time}`;
+            return dateTime;
+          };
+
+          if (document.documentData.length !== 0) {
+            document.documentData.forEach((data) => {
+              list.push({
+                fileName: data.fileName,
+                registrationNumber: document.registrationNumber,
+                id: data.id,
+                dateTime: dateTime(),
+              });
+            });
+          }
+        });
+    }
+    setDocumentDataList(list);
+  }, [documentList]);
 
   return selectedEmployment ?
       <div>
@@ -86,23 +123,10 @@ export const EmploymentsTab: React.FC = () => {
                   </div>
                   {documentListIsLoading ?
                     <Spinner size={4} />
-                  : (
-                    documentList?.documents?.length === 0 ||
-                    !documentList?.documents?.filter((doc) =>
-                      doc.metadataList.find((x) => x.value === selectedEmployment.empRowId)
-                    )
-                  ) ?
+                  : documentDataList?.length === 0 ?
                     <span>Inga dokument finns att visa</span>
                   : <div className="flex flex-col gap-8">
-                      {documentList?.documents?.map((document, idx) => {
-                        const dateTime = () => {
-                          const date = dayjs(document.created).date();
-                          const month = new Date(document.created).toLocaleString('default', { month: 'long' });
-                          const year = dayjs(document.created).year();
-                          const time = dayjs(document.created).format('HH.mm');
-                          const dateTime = `${date} ${month} ${year} kl.${time}`;
-                          return dateTime;
-                        };
+                      {documentDataList?.map((document, idx) => {
                         return (
                           <div key={`document-${idx}`}>
                             <div className="flex justify-between items-center p-12">
@@ -111,7 +135,7 @@ export const EmploymentsTab: React.FC = () => {
                                   <Icon icon={<File />} size={24} />
                                 </div>
                                 <p>
-                                  <strong className="block">{document?.documentData[0]?.fileName}</strong> {dateTime()}
+                                  <strong className="block">{document.fileName}</strong> {document.dateTime}
                                 </p>
                               </div>
                               <Button
@@ -126,32 +150,38 @@ export const EmploymentsTab: React.FC = () => {
                                       'info',
                                       'info'
                                     )
-                                    .then(async (confirmed) => {
+                                    .then((confirmed) => {
                                       if (confirmed) {
-                                        await deleteDocument(
-                                          document.registrationNumber,
-                                          document.documentData[0].id
-                                        ).then(async (res) => {
-                                          if (res.data) {
+                                        deleteDocument(document.registrationNumber, document.id)
+                                          .then(async (res) => {
+                                            if (res) {
+                                              toastMessage({
+                                                position: 'bottom',
+                                                closeable: false,
+                                                message: 'Dokumentet togs bort',
+                                                status: 'success',
+                                              });
+
+                                              await getDocumentList([
+                                                {
+                                                  key: 'employmentId',
+                                                  matchesAny: [selectedEmployment.empRowId],
+                                                },
+                                                {
+                                                  key: 'partyId',
+                                                  matchesAny: [employeeUsersEmployments[0].personId],
+                                                },
+                                              ]);
+                                            }
+                                          })
+                                          .catch((e) => {
                                             toastMessage({
                                               position: 'bottom',
                                               closeable: false,
-                                              message: 'Dokumentet laddades upp',
-                                              status: 'success',
+                                              message: 'Dokumentet kunde inte tas bort',
+                                              status: 'error',
                                             });
-
-                                            await getDocuments([
-                                              {
-                                                key: 'employmentId',
-                                                matchesAny: [selectedEmployment.empRowId],
-                                              },
-                                              {
-                                                key: 'partyId',
-                                                matchesAny: [employeeUsersEmployments[0].personId],
-                                              },
-                                            ]);
-                                          }
-                                        });
+                                          });
                                       }
                                       return confirmed ? () => true : () => {};
                                     });
@@ -160,7 +190,7 @@ export const EmploymentsTab: React.FC = () => {
                                 <Icon icon={<Trash />} />
                               </Button>
                             </div>
-                            {documentList.documents[documentList.documents.length - 1].id !== document.id ?
+                            {documentDataList[documentDataList.length - 1].id !== document.id ?
                               <Divider />
                             : <></>}
                           </div>

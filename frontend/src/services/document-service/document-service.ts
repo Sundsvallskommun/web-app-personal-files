@@ -159,7 +159,7 @@ export const useDocumentStore = createWithEqualityFn<
           if (registrationNumber && documentDataId) {
             res = await deleteDocument(registrationNumber, documentDataId);
           }
-          return { data: res };
+          return { data: res.data };
         },
         reset: () => {
           set(initialState);
