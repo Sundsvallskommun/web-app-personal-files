@@ -51,7 +51,7 @@ class ApiService {
     return this.request<T>({ ...config, method: 'PATCH' });
   }
 
-  public async delete<T>(config: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  public async delete<T>(config: AxiosRequestConfig, user: User): Promise<ApiResponse<T>> {
     return this.request<T>({ ...config, method: 'DELETE' });
   }
 }

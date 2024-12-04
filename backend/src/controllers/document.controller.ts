@@ -1,7 +1,7 @@
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import ApiService from '@services/api.service';
 import authMiddleware from '@middlewares/auth.middleware';
-import { Body, Controller, Get, Param, Post, Req, Res, UploadedFiles, UseBefore } from 'routing-controllers';
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Req, Res, UploadedFiles, UseBefore } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 import { logger } from '@/utils/logger';
 
@@ -82,5 +82,19 @@ export class DocumentController {
       throw e;
     });
     return { data: res.data, message: 'success' };
+  }
+
+  @Delete('/documents/:registrationNumber/files/:documentDataId')
+  @OpenAPI({ summary: 'Delete attachment for errand' })
+  @UseBefore(authMiddleware)
+  async deleteSupportAttachment(
+    @Req() req: RequestWithUser,
+    @Param('registrationNumber') registrationNumber: string,
+    @Param('documentDataId') documentDataId: string,
+    @Res() response: any,
+  ): Promise<any> {
+    const url = `document/3.0/2281/documents/${registrationNumber}/files/${documentDataId}`;
+    const res = await this.apiService.delete({ url }, req.user);
+    return response.status(200).send(res.data);
   }
 }
