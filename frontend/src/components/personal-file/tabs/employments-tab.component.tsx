@@ -21,6 +21,7 @@ export const EmploymentsTab: React.FC = () => {
   const deleteDocument = useDocumentStore((s) => s.deleteDocument);
   const documentList = useDocumentStore((s) => s.documentList);
   const getDocumentTypes = useDocumentStore((s) => s.getDocumentTypes);
+  const documentTypes = useDocumentStore((s) => s.documentTypes);
 
   const [documentDataList, setDocumentDataList] = useState<documentDataList[]>([]);
 
@@ -63,7 +64,7 @@ export const EmploymentsTab: React.FC = () => {
           if (document.documentData.length !== 0) {
             document.documentData.forEach((data) => {
               list.push({
-                fileName: data.fileName,
+                fileName: `${data.fileName} ${documentTypes && `(${documentTypes.find((x) => x.type === document.type).displayName})`}`,
                 registrationNumber: document.registrationNumber,
                 id: data.id,
                 dateTime: dateTime(),
