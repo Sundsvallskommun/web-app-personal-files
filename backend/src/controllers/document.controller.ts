@@ -43,7 +43,6 @@ export class DocumentController {
     message: string;
   }> {
     const url = 'document/3.0/2281/documents';
-    console.log(document);
     const docData: DocumentCreateRequest = {
       createdBy: document.createdBy,
       confidentiality: JSON.parse(document.confidentiality) as Object,

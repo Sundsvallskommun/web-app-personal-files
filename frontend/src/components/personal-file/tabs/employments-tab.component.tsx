@@ -178,7 +178,6 @@ export const EmploymentsTab: React.FC = () => {
                                             onClick={() => {
                                               getDocument(document.registrationNumber, document.id).then((res) => {
                                                 if (res) {
-                                                  console.log(res.data);
                                                   downloadDocument(document, res.data as string);
                                                 }
                                               });
