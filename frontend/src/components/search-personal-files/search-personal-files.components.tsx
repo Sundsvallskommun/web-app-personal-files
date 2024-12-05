@@ -33,8 +33,27 @@ export const SearchPersonalFiles: React.FC = () => {
   const searchResultOfAD = () => {
     const personalNumber = query.replace('-', '');
     getADUserEmployments(personalNumber)
-      .then(() => {
+      .then((res) => {
         setIsSearch(true);
+        const employments = [];
+        res.data.map((users) =>
+          users.employments.map((emp) => {
+            if (emp.isManual === false) {
+              employments.push(emp);
+            }
+          })
+        );
+
+        if (employments.length === 0) {
+          toastMessage({
+            position: 'bottom',
+            closeable: false,
+            message: 'Det gick inte att hitta någon timavlönad personakt under det här personnumret',
+            status: 'error',
+          });
+        }
+
+        setEmploymentslist(employments);
       })
       .catch((e) => {
         toastMessage({
@@ -47,7 +66,7 @@ export const SearchPersonalFiles: React.FC = () => {
   };
 
   useEffect(() => {
-    if (employeeUsersEmployments.length && query.length < 13) {
+    if (employeeUsersEmployments.length !== 0 && query.length < 13) {
       setIsSearch(false);
     }
   }, [employeeUsersEmployments, query]);
@@ -63,18 +82,6 @@ export const SearchPersonalFiles: React.FC = () => {
       setMessage('');
     }
   }, [query]);
-
-  useEffect(() => {
-    const employments = [];
-
-    employeeUsersEmployments.map((users) =>
-      users.employments.map((emp) => {
-        employments.push(emp);
-      })
-    );
-
-    setEmploymentslist(employments);
-  }, [employeeUsersEmployments]);
 
   return (
     <>
@@ -104,9 +111,9 @@ export const SearchPersonalFiles: React.FC = () => {
           </FormErrorMessage>
         : <></>}
       </div>
-      {isSearch && !employeeUsersEmployments.length ?
+      {isSearch && employeeUsersEmployments.length === 0 ?
         <Spinner size={6} />
-      : isSearch ?
+      : isSearch && employmentslist.length !== 0 ?
         <Table data-cy="personalfile-result-table" className="max-w-[590px] w-full" background={true}>
           <Table.Header>
             <Table.HeaderColumn>Namn</Table.HeaderColumn>
