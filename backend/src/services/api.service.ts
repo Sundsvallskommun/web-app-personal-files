@@ -3,6 +3,7 @@ import { apiURL } from '@/utils/util';
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import ApiTokenService from './api-token.service';
 import { User } from '@/interfaces/users.interface';
+import { logger } from '@/utils/logger';
 
 class ApiResponse<T> {
   data: T;
@@ -33,6 +34,14 @@ class ApiService {
     } catch (error: unknown | AxiosError) {
       if (axios.isAxiosError(error) && (error as AxiosError).response?.status === 404) {
         throw new HttpException(404, 'Not found');
+      } else if (axios.isAxiosError(error) && (error as AxiosError).response?.data) {
+        logger.error(`ERROR: API request failed with status: ${error.response?.status}`);
+        logger.error(`Error details: ${JSON.stringify(error.response.data)}`);
+        logger.error(`Error url: ${error.response.config.url}`);
+        logger.error(`Error data: ${error.response.config.data?.slice(0, 1500)}`);
+        logger.error(`Error method: ${error.response.config.method}`);
+      } else {
+        logger.error(`Unknown error: ${error}`);
       }
       // NOTE: did you subscribe to the API called?
       throw new HttpException(500, 'Internal server error from gateway');

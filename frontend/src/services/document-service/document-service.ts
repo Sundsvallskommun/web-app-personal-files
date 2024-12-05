@@ -2,7 +2,7 @@ import { ServiceResponse } from '@interfaces/services';
 import { __DEV__ } from '@sk-web-gui/react';
 import { createWithEqualityFn } from 'zustand/traditional';
 import { devtools, persist } from 'zustand/middleware';
-import { apiService } from '@services/api-service';
+import { ApiResponse, apiService } from '@services/api-service';
 import {
   CreateDocument,
   Direction,
@@ -11,6 +11,7 @@ import {
   SearchDocument,
   DocumentType,
   PageDocument,
+  DocumentData,
 } from '@interfaces/document/document';
 import { toBase64 } from '@utils/toBase64';
 
@@ -34,7 +35,24 @@ export const getDocuments: (metaData: MetaData[]) => Promise<PageDocument> = asy
     });
 };
 
-export const uploadDocument: (document: CreateDocument, file: File) => Promise<any> = async (
+export const fetchDocument: (
+  registrationNumber: string,
+  documentDataId: string
+) => Promise<ApiResponse<Object>> = async (registrationNumber, documentDataId) => {
+  if (!registrationNumber || !documentDataId) {
+    console.error('No document registrationNumber or documentDataId found, cannot fetch. Returning.');
+  }
+  const url = `/document/${registrationNumber}/files/${documentDataId}`;
+  return await apiService
+    .get<ApiResponse<Object>>(url)
+    .then((res) => res.data)
+    .catch((e) => {
+      console.error('Something went wrong when fetching document: ', documentDataId);
+      throw e;
+    });
+};
+
+export const uploadDocument: (document: CreateDocument, file: File) => Promise<Object> = async (
   document: CreateDocument,
   file: File
 ) => {
@@ -82,7 +100,7 @@ export const deleteDocument: (registrationNumber: string, documentDataId: string
   documentDataId
 ) => {
   try {
-    const res = await apiService.delete<boolean>(`/documents/${registrationNumber}/files/${documentDataId}`);
+    const res = await apiService.delete<boolean>(`/document/${registrationNumber}/files/${documentDataId}`);
     return res.data;
   } catch (e) {
     console.error('Something went wrong when deleting note');
@@ -99,7 +117,8 @@ interface Actions {
   setDocumentList: (documentList: PageDocument) => void;
   setDocumentTypes: (DocumentTypes: DocumentType[]) => void;
   getDocumentList: (metadata: MetaData[]) => Promise<ServiceResponse<PageDocument>>;
-  uploadDocument: (UploadBody: CreateDocument, file: File) => Promise<ServiceResponse<any>>;
+  getDocument: (registrationNumber: string, documentDataId: string) => Promise<ServiceResponse<Object>>;
+  uploadDocument: (UploadBody: CreateDocument, file: File) => Promise<ServiceResponse<Object>>;
   getDocumentTypes: () => Promise<ServiceResponse<DocumentType[]>>;
   deleteDocument: (registrationNumber: string, documentDataId: string) => Promise<ServiceResponse<boolean>>;
   reset: () => void;
@@ -140,6 +159,10 @@ export const useDocumentStore = createWithEqualityFn<
           }
 
           return { data: documents };
+        },
+        getDocument: async (registrationNumber, documentDataId) => {
+          const res = await fetchDocument(registrationNumber, documentDataId);
+          return { data: res };
         },
         uploadDocument: async (body: CreateDocument, file: File) => {
           const res = await uploadDocument(body, file);

@@ -1,15 +1,27 @@
 import { MetaData } from '@interfaces/document/document';
 import { useDocumentStore } from '@services/document-service/document-service';
 import { useEmployeeStore } from '@services/employee-service/employee-service';
-import { FormLabel, Label, Table, Divider, Spinner, Icon, Button, useConfirm, useSnackbar } from '@sk-web-gui/react';
+import {
+  FormLabel,
+  Label,
+  Table,
+  Divider,
+  Spinner,
+  Icon,
+  Button,
+  useConfirm,
+  useSnackbar,
+  PopupMenu,
+} from '@sk-web-gui/react';
 import { useEffect, useState } from 'react';
-import { File, Trash } from 'lucide-react';
+import { File, Trash, Eye, Ellipsis } from 'lucide-react';
 import dayjs from 'dayjs';
 
 interface documentDataList {
   fileName: string;
   registrationNumber: string;
   id: string;
+  mimeType: string;
   dateTime: string;
 }
 
@@ -19,6 +31,7 @@ export const EmploymentsTab: React.FC = () => {
   const getDocumentList = useDocumentStore((s) => s.getDocumentList);
   const documentListIsLoading = useDocumentStore((s) => s.documentsIsLoading);
   const deleteDocument = useDocumentStore((s) => s.deleteDocument);
+  const getDocument = useDocumentStore((s) => s.getDocument);
   const documentList = useDocumentStore((s) => s.documentList);
   const getDocumentTypes = useDocumentStore((s) => s.getDocumentTypes);
   const documentTypes = useDocumentStore((s) => s.documentTypes);
@@ -67,6 +80,7 @@ export const EmploymentsTab: React.FC = () => {
                 fileName: `${data.fileName} ${documentTypes && `(${documentTypes.find((x) => x.type === document.type).displayName})`}`,
                 registrationNumber: document.registrationNumber,
                 id: data.id,
+                mimeType: data.mimeType,
                 dateTime: dateTime(),
               });
             });
@@ -75,6 +89,16 @@ export const EmploymentsTab: React.FC = () => {
     }
     setDocumentDataList(list);
   }, [documentList]);
+
+  const downloadDocument = (a: documentDataList, file: string) => {
+    const uri = `data:${a.mimeType};base64,${file}`;
+    const link = document.createElement('a');
+    const filename = a.fileName.split(' ')[0];
+    link.href = uri;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+  };
 
   return selectedEmployment ?
       <div>
@@ -139,57 +163,89 @@ export const EmploymentsTab: React.FC = () => {
                                   <strong className="block">{document.fileName}</strong> {document.dateTime}
                                 </p>
                               </div>
-                              <Button
-                                variant="ghost"
-                                onClick={() => {
-                                  deleteConfirm
-                                    .showConfirmation(
-                                      'Är du säker?',
-                                      'Om du tar bort dokumentet försvinner den från anställningen.',
-                                      'Ja',
-                                      'Nej',
-                                      'info',
-                                      'info'
-                                    )
-                                    .then((confirmed) => {
-                                      if (confirmed) {
-                                        deleteDocument(document.registrationNumber, document.id)
-                                          .then(async (res) => {
-                                            if (res) {
-                                              toastMessage({
-                                                position: 'bottom',
-                                                closeable: false,
-                                                message: 'Dokumentet togs bort',
-                                                status: 'success',
+                              <div className="self-center relative mr-20">
+                                <PopupMenu position={documentDataList.length - 1 === idx ? 'over' : 'under'}>
+                                  <PopupMenu.Button size="md" aria-label="Alternativ" inverted>
+                                    <Ellipsis />
+                                  </PopupMenu.Button>
+                                  <PopupMenu.Panel>
+                                    <PopupMenu.Items>
+                                      <PopupMenu.Group>
+                                        <PopupMenu.Item>
+                                          <Button
+                                            leftIcon={<Icon icon={<Eye />} />}
+                                            variant="ghost"
+                                            onClick={() => {
+                                              getDocument(document.registrationNumber, document.id).then((res) => {
+                                                if (res) {
+                                                  console.log(res.data);
+                                                  downloadDocument(document, res.data as string);
+                                                }
                                               });
+                                            }}
+                                          >
+                                            Öppna
+                                          </Button>
+                                        </PopupMenu.Item>
+                                        <PopupMenu.Item>
+                                          <Button
+                                            variant="ghost"
+                                            leftIcon={<Icon icon={<Trash />} />}
+                                            onClick={() => {
+                                              deleteConfirm
+                                                .showConfirmation(
+                                                  'Är du säker?',
+                                                  'Om du tar bort dokumentet försvinner den från anställningen.',
+                                                  'Ja',
+                                                  'Nej',
+                                                  'info',
+                                                  'info'
+                                                )
+                                                .then((confirmed) => {
+                                                  if (confirmed) {
+                                                    deleteDocument(document.registrationNumber, document.id)
+                                                      .then(async (res) => {
+                                                        if (res) {
+                                                          toastMessage({
+                                                            position: 'bottom',
+                                                            closeable: false,
+                                                            message: 'Dokumentet togs bort',
+                                                            status: 'success',
+                                                          });
 
-                                              await getDocumentList([
-                                                {
-                                                  key: 'employmentId',
-                                                  matchesAny: [selectedEmployment.empRowId],
-                                                },
-                                                {
-                                                  key: 'partyId',
-                                                  matchesAny: [employeeUsersEmployments[0].personId],
-                                                },
-                                              ]);
-                                            }
-                                          })
-                                          .catch((e) => {
-                                            toastMessage({
-                                              position: 'bottom',
-                                              closeable: false,
-                                              message: 'Dokumentet kunde inte tas bort',
-                                              status: 'error',
-                                            });
-                                          });
-                                      }
-                                      return confirmed ? () => true : () => {};
-                                    });
-                                }}
-                              >
-                                <Icon icon={<Trash />} />
-                              </Button>
+                                                          await getDocumentList([
+                                                            {
+                                                              key: 'employmentId',
+                                                              matchesAny: [selectedEmployment.empRowId],
+                                                            },
+                                                            {
+                                                              key: 'partyId',
+                                                              matchesAny: [employeeUsersEmployments[0].personId],
+                                                            },
+                                                          ]);
+                                                        }
+                                                      })
+                                                      .catch((e) => {
+                                                        toastMessage({
+                                                          position: 'bottom',
+                                                          closeable: false,
+                                                          message: 'Dokumentet kunde inte tas bort',
+                                                          status: 'error',
+                                                        });
+                                                      });
+                                                  }
+                                                  return confirmed ? () => true : () => {};
+                                                });
+                                            }}
+                                          >
+                                            Ta bort
+                                          </Button>
+                                        </PopupMenu.Item>
+                                      </PopupMenu.Group>
+                                    </PopupMenu.Items>
+                                  </PopupMenu.Panel>
+                                </PopupMenu>
+                              </div>
                             </div>
                             {documentDataList[documentDataList.length - 1].id !== document.id ?
                               <Divider />
