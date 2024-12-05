@@ -8,7 +8,22 @@ import { logger } from '@/utils/logger';
 import { validateRequestBody } from '@/utils/validate';
 import { fileUploadOptions } from '@/utils/fileUploadOptions';
 import { DocumentCreateRequest } from '@/data-contracts/document/data-contracts';
-import { SearchDocument, DocumentType } from '@/responses/document.response';
+import { SearchDocument, DocumentType, DocumentData } from '@/responses/document.response';
+import { CreateDocument } from '@/interfaces/document.interface';
+
+interface ResponseData {
+  data: any;
+  message: string;
+}
+
+export interface CreateBodyDocument {
+  createdBy: string;
+  confidentiality: string;
+  archive: boolean;
+  description: string;
+  metadataList: string;
+  type: string;
+}
 @Controller()
 export class DocumentController {
   private apiService = new ApiService();
@@ -19,8 +34,14 @@ export class DocumentController {
   async uploadDocument(
     @Req() req: RequestWithUser,
     @UploadedFiles('documentFiles', { options: fileUploadOptions, required: false }) files: Express.Multer.File[],
-    @Body() document: any,
-  ): Promise<{ data: any; message: string }> {
+    @Body() document: CreateBodyDocument,
+  ): Promise<{
+    data: {
+      document: DocumentCreateRequest;
+      documentFiles: File[];
+    };
+    message: string;
+  }> {
     const url = 'document/3.0/2281/documents';
     const docData: DocumentCreateRequest = {
       createdBy: document.createdBy,
@@ -72,6 +93,22 @@ export class DocumentController {
     return { data: response.data, message: `searched documents` };
   }
 
+  @Get('/document/:registrationNumber/files/:documentDataId')
+  @OpenAPI({ summary: 'Fetch document' })
+  @UseBefore(authMiddleware)
+  async fetchDocument(
+    @Req() req: RequestWithUser,
+    @Param('registrationNumber') registrationNumber: string,
+    @Param('documentDataId') documentDataId: string,
+    @Res() response: { send(b64: string): { data: string; message: string } },
+  ): Promise<{ data: string; message: string }> {
+    const url = `document/3.0/2281/documents/${registrationNumber}/files/${documentDataId}?includeConfidential=true`;
+    const res = await this.apiService.get<ArrayBuffer>({ url, responseType: 'arraybuffer' }, req.user);
+    const binaryString = Array.from(new Uint8Array(res.data), v => String.fromCharCode(v)).join('');
+    const b64 = Buffer.from(binaryString, 'binary').toString('base64');
+    return response.send(b64) as { data: string; message: string };
+  }
+
   @Get('/document/types')
   @OpenAPI({ summary: 'Fetch document types' })
   @UseBefore(authMiddleware)
@@ -84,8 +121,8 @@ export class DocumentController {
     return { data: res.data, message: 'success' };
   }
 
-  @Delete('/documents/:registrationNumber/files/:documentDataId')
-  @OpenAPI({ summary: 'Delete attachment for errand' })
+  @Delete('/document/:registrationNumber/files/:documentDataId')
+  @OpenAPI({ summary: 'Delete document data from employment' })
   @UseBefore(authMiddleware)
   async deleteSupportAttachment(
     @Req() req: RequestWithUser,
