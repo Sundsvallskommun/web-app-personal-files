@@ -1,9 +1,13 @@
 export type User = {
-  personId: string;
-  username: string;
+  // id: number;
+  // personId: string;
   name: string;
-  givenName: string;
-  surname: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  username: string;
+  // groups: string;
+  // permissions: Permissions;
 };
 
 export type ClientUser = {
