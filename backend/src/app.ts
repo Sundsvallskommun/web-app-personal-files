@@ -92,6 +92,7 @@ const samlStrategy = new Strategy(
         message: 'Missing SAML profile',
       });
     }
+    console.log('profile', profile);
     const { givenName, surname, citizenIdentifier, username } = profile;
 
     if (!givenName || !surname || !citizenIdentifier) {
