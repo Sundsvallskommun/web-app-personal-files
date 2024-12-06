@@ -1,4 +1,3 @@
-import {} from '@data-contracts/backend/data-contracts';
 import { Employee } from '@interfaces/employee/employee';
 import { ApiResponse } from '@services/api-service';
 

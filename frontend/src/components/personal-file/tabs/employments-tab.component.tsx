@@ -16,6 +16,7 @@ import {
 import { useEffect, useState } from 'react';
 import { File, Trash, Eye, Ellipsis } from 'lucide-react';
 import dayjs from 'dayjs';
+import { useFoundationObjectStore } from '@services/foundation-object/foundation-object-service';
 
 interface documentDataList {
   fileName: string;
@@ -35,6 +36,10 @@ export const EmploymentsTab: React.FC = () => {
   const documentList = useDocumentStore((s) => s.documentList);
   const getDocumentTypes = useDocumentStore((s) => s.getDocumentTypes);
   const documentTypes = useDocumentStore((s) => s.documentTypes);
+  const getCompanies = useFoundationObjectStore((s) => s.getCompanies);
+  const companies = useFoundationObjectStore((s) => s.companies);
+  const getFormOfEmmployments = useFoundationObjectStore((s) => s.getFormOfEmployments);
+  const formOfEmployments = useFoundationObjectStore((s) => s.formOfEmployments);
 
   const [documentDataList, setDocumentDataList] = useState<documentDataList[]>([]);
 
@@ -43,6 +48,8 @@ export const EmploymentsTab: React.FC = () => {
 
   useEffect(() => {
     getDocumentTypes();
+    getCompanies();
+    getFormOfEmmployments();
   }, []);
 
   useEffect(() => {
@@ -120,24 +127,32 @@ export const EmploymentsTab: React.FC = () => {
                       </Label>
                     </div>
                     <div className="flex flex-col">
-                      <FormLabel>Avdelning</FormLabel>
+                      <FormLabel>Team</FormLabel>
                       <Label className="w-fit" inverted>
-                        {selectedEmployment.orgName}
+                        {formOfEmployments.length !== 0 ?
+                          formOfEmployments.find((x) => x.foeId === selectedEmployment.formOfEmploymentId).description
+                        : 'Timavlönade'}
                       </Label>
                     </div>
                   </div>
                   <div className="flex flex-col gap-24">
                     <div className="flex flex-col">
-                      <FormLabel>Verksamhet</FormLabel>
-                      <Label className="w-fit" inverted>
-                        {selectedEmployment.topOrgName}
-                      </Label>
+                      <FormLabel>Avdelning</FormLabel>
+                      <p>{selectedEmployment.orgName}</p>
                     </div>
                     <div className="flex flex-col">
+                      <FormLabel>Verksamhet</FormLabel>
+                      <p>{selectedEmployment.topOrgName}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-24">
+                    <div className="flex flex-col">
                       <FormLabel>Legal enhet</FormLabel>
-                      <Label className="w-fit" inverted>
-                        {selectedEmployment.companyId}
-                      </Label>
+                      <p>
+                        {companies.length !== 0 ?
+                          companies.find((x) => x.companyId === selectedEmployment.companyId).displayName
+                        : 'Saknar information'}
+                      </p>
                     </div>
                   </div>
                 </div>
