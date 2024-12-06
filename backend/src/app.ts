@@ -64,17 +64,18 @@ passport.deserializeUser(function (user, done) {
 const samlStrategy = new Strategy(
   {
     disableRequestedAuthnContext: true,
-    identifierFormat: 'urn:oasis:names:tc:SAML:2.0:nameid-format:transient',
+    // identifierFormat: 'urn:oasis:names:tc:SAML:2.0:nameid-format:transient',
+    identifierFormat: 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
     callbackUrl: SAML_CALLBACK_URL,
     entryPoint: SAML_ENTRY_SSO,
-    // decryptionPvk: SAML_PRIVATE_KEY,
     privateKey: SAML_PRIVATE_KEY,
-    // Identity Provider's public key
     cert: SAML_IDP_PUBLIC_CERT,
     issuer: SAML_ISSUER,
     wantAssertionsSigned: false,
-    acceptedClockSkewMs: 1000,
+    signatureAlgorithm: 'sha256',
+    digestAlgorithm: 'sha256',
     logoutCallbackUrl: SAML_LOGOUT_CALLBACK_URL,
+    acceptedClockSkewMs: -1,
   },
   async function (profile: Profile, done: VerifiedCallback) {
     if (!profile) {
@@ -83,10 +84,17 @@ const samlStrategy = new Strategy(
         message: 'Missing SAML profile',
       });
     }
-    const { givenName, surname, citizenIdentifier, username } = profile;
+    const givenName = profile['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname'] ?? profile['givenName'];
+    const sn = profile['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname'] ?? profile['sn'];
+    const email = profile['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] ?? profile['email'];
+    const groups = profile['http://schemas.xmlsoap.org/claims/Group']?.join(',') ?? profile['groups'];
+    const username = profile['urn:oid:0.9.2342.19200300.100.1.1'];
 
-    if (!givenName || !surname || !citizenIdentifier) {
-      return done({
+    if (!givenName || !sn || !email || !groups || !username) {
+      logger.error(
+        'Could not extract necessary profile data fields from the IDP profile. Does the Profile interface match the IDP profile response? The profile response may differ, for example Onegate vs ADFS.',
+      );
+      return done(null, null, {
         name: 'SAML_MISSING_ATTRIBUTES',
         message: 'Missing profile attributes',
       });
@@ -115,11 +123,15 @@ const samlStrategy = new Strategy(
       // }
 
       const findUser: User = {
-        personId: citizenIdentifier,
-        username: username,
-        name: `${givenName} ${surname}`,
+        personId: '',
+        name: `${givenName} ${sn}`,
         givenName: givenName,
-        surname: surname,
+        surname: sn,
+        username: username,
+        email: email,
+        // groups: appGroups,
+        // role: getRole(appGroups),
+        // permissions: getPermissions(appGroups),
       };
 
       done(null, findUser);
