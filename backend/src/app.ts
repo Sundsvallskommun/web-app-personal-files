@@ -124,9 +124,10 @@ const samlStrategy = new Strategy(
       // }
 
       const findUser: User = {
+        personId: '',
         name: `${givenName} ${sn}`,
-        firstName: givenName,
-        lastName: sn,
+        givenName: givenName,
+        surname: sn,
         username: username,
         email: email,
         // groups: appGroups,

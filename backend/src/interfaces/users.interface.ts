@@ -1,9 +1,9 @@
 export type User = {
   // id: number;
-  // personId: string;
+  personId: string;
   name: string;
-  firstName: string;
-  lastName: string;
+  givenName: string;
+  surname: string;
   email: string;
   username: string;
   // groups: string;
