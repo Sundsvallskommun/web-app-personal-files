@@ -64,17 +64,26 @@ passport.deserializeUser(function (user, done) {
 const samlStrategy = new Strategy(
   {
     disableRequestedAuthnContext: true,
-    identifierFormat: 'urn:oasis:names:tc:SAML:2.0:nameid-format:transient',
+    //attributeConsumingServiceIndex: '2',
+    //xmlSignatureTransforms: ['test'],
+    //authnContext: ['urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified'],
+    // identifierFormat: 'urn:oasis:names:tc:SAML:2.0:nameid-format:transient',
+    identifierFormat: 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
     callbackUrl: SAML_CALLBACK_URL,
     entryPoint: SAML_ENTRY_SSO,
-    // decryptionPvk: SAML_PRIVATE_KEY,
+    //decryptionPvk: SAML_PRIVATE_KEY,
     privateKey: SAML_PRIVATE_KEY,
     // Identity Provider's public key
     cert: SAML_IDP_PUBLIC_CERT,
     issuer: SAML_ISSUER,
     wantAssertionsSigned: false,
-    acceptedClockSkewMs: 1000,
+    signatureAlgorithm: 'sha256',
+    digestAlgorithm: 'sha256',
+    // maxAssertionAgeMs: 2592000000,
+    // authnRequestBinding: 'HTTP-POST',
+    //logoutUrl: 'http://194.71.24.30/sso',
     logoutCallbackUrl: SAML_LOGOUT_CALLBACK_URL,
+    acceptedClockSkewMs: -1,
   },
   async function (profile: Profile, done: VerifiedCallback) {
     if (!profile) {
