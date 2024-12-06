@@ -67,14 +67,39 @@ export interface CreateDocument {
 export interface SearchDocument {
   page: number;
   limit: number;
-  sortBy: any[];
+  sortBy?: any[];
+  sortDirection: string;
   includeConfidential: boolean;
   onlyLatestRevision: boolean;
-  documentTypes: any[];
-  metaData: any[];
+  documentTypes?: any[];
+  metaData?: any[];
 }
 
 export interface DocumentType {
   type: string;
   displayName: string;
+}
+
+export interface Company {
+  companyId?: number;
+  companyCode?: string;
+  shortName?: string;
+  displayName?: string;
+  isSchool?: boolean;
+  isPrivateSchool?: boolean;
+}
+
+export interface CompaniesApiResponse {
+  data: Company;
+  message: string;
+}
+
+export interface FormOfEmployment {
+  foeId?: string;
+  description?: string;
+}
+
+export interface FormOfEmploymentsApiResponse {
+  data: FormOfEmployment;
+  message: string;
 }

@@ -16,4 +16,8 @@ export const APIS = [
     name: 'document',
     version: '3.0',
   },
+  {
+    name: 'fo',
+    version: '1.0',
+  },
 ] as const;
