@@ -84,7 +84,6 @@ const samlStrategy = new Strategy(
         message: 'Missing SAML profile',
       });
     }
-    console.log('profile', profile);
     const givenName = profile['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname'] ?? profile['givenName'];
     const sn = profile['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname'] ?? profile['sn'];
     const email = profile['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] ?? profile['email'];
