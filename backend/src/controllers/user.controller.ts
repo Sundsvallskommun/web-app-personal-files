@@ -6,6 +6,7 @@ import authMiddleware from '@middlewares/auth.middleware';
 import { Controller, Get, Header, QueryParam, Req, Res, UseBefore } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import ApiService from '@/services/api.service';
+import { PortalPersonData } from '@/interfaces/employee.interface';
 
 @Controller()
 export class UserController {
@@ -41,7 +42,12 @@ export class UserController {
   @Header('Cross-Origin-Embedder-Policy', 'require-corp')
   @Header('Cross-Origin-Resource-Policy', 'cross-origin')
   async getMyEmployeeImage(@Req() req: RequestWithUser, @QueryParam('width') width): Promise<any> {
-    const { personId } = req.user;
+    const { username } = req.user;
+
+    const userURL = `employee/1.0/portalpersondata/PERSONAL/${username}`;
+    const personId = await this.apiService.get<PortalPersonData>({ url: userURL }, req.user).then(res => {
+      return res.data.personid;
+    });
 
     if (!personId) {
       throw new HttpException(400, 'Bad Request');
