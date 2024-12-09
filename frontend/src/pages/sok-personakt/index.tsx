@@ -18,11 +18,7 @@ export const SokPersonakt: React.FC = () => {
       <Main>
         <div className="flex flex-col justify-center items-center py-24 gap-24">
           <SearchPersonalFileIcon />
-          <h1 className="text-center">
-            Sök personakt
-            {/* {capitalize(`${t('common:welcome')}
-            ${user.name ? ` ${user.name}` : ''}!`)} */}
-          </h1>
+          <h1 className="text-center">Sök personakt</h1>
           <SearchPersonalFiles />
         </div>
       </Main>

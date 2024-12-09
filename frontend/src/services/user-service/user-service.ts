@@ -7,11 +7,15 @@ import { ServiceResponse } from '@interfaces/services';
 import { User } from '@data-contracts/backend/data-contracts';
 
 const handleSetUserResponse: (res: ApiResponse<User>) => User = (res) => ({
+  personId: res.data.personId,
+  email: res.data.email,
   name: res.data.name,
   username: res.data.username,
   givenName: res.data.givenName,
   surname: res.data.surname,
-  // permissions: res.data.permissions,
+  permissions: res.data.permissions,
+  role: res.data.role,
+  groups: res.data.groups,
 });
 
 const getMe: () => Promise<ServiceResponse<User>> = () => {
