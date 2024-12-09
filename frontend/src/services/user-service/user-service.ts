@@ -62,12 +62,3 @@ export const useUserStore = createWithEqualityFn<State & Actions>()(
     { enabled: __DEV__ }
   )
 );
-
-export const getAvatar: (width: string) => Promise<string> = (width) => {
-  return apiService
-    .get<ApiResponse<string>>(`user/avatar?width=${width}`)
-    .then((res) => res.data.data)
-    .catch((err) => {
-      return Promise.reject(err.response?.data?.message);
-    });
-};
