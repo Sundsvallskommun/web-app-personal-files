@@ -251,28 +251,33 @@ class App {
         if (err) {
           return next(err);
         }
+        // FIXME: should we redirect here or should client do it?
+        res.redirect(SAML_LOGOUT_REDIRECT);
         let successRedirect, failureRedirect;
         if (isValidUrl(req.body.RelayState)) {
           successRedirect = req.body.RelayState;
         }
 
         if (req.session.messages?.length > 0) {
-          failureRedirect = successRedirect + `?failMessage=${req.session.messages[0]}`;
+          failureRedirect = SAML_FAILURE_REDIRECT_MESSAGE + `?failMessage=${req.session.messages[0]}`;
         } else {
-          failureRedirect = successRedirect + `?failMessage='SAML_UNKNOWN_ERROR'`;
+          failureRedirect = SAML_FAILURE_REDIRECT_MESSAGE + `?failMessage='SAML_UNKNOWN_ERROR'`;
         }
         if (failureRedirect) {
           res.redirect(failureRedirect);
         } else {
-          res.redirect(successRedirect);
+          res.redirect(SAML_SUCCESS_REDIRECT);
         }
+        //
       });
     });
 
-    // To handle failure on backend, failureRedirect here
-    // this.app.get(`${BASE_URL_PREFIX}/saml/login/failure`, bodyParser.urlencoded({ extended: false }), (req, res, next) => {
-    //   res.redirect(SAML_FAILURE_REDIRECT_MESSAGE);
-    // });
+    //To handle failure on backend, failureRedirect here
+    this.app.get(`${BASE_URL_PREFIX}/saml/login/failure`, bodyParser.urlencoded({ extended: false }), (req, res, next) => {
+      res.redirect(
+        SAML_FAILURE_REDIRECT_MESSAGE + `?failMessage=${req.session.messages?.length > 0 ? req.session.messages[0] : 'SAML_UNKNOWN_ERROR'}`,
+      );
+    });
 
     this.app.post(
       `${BASE_URL_PREFIX}/saml/login/callback`,
@@ -284,13 +289,13 @@ class App {
         }
 
         if (req.session.messages?.length > 0) {
-          failureRedirect = successRedirect + `?failMessage=${req.session.messages[0]}`;
+          failureRedirect = SAML_FAILURE_REDIRECT_MESSAGE + `?failMessage=${req.session.messages[0]}`;
         } else {
-          failureRedirect = successRedirect + `?failMessage='SAML_UNKNOWN_ERROR'`;
+          failureRedirect = SAML_FAILURE_REDIRECT_MESSAGE + `?failMessage='SAML_UNKNOWN_ERROR'`;
         }
         passport.authenticate('saml', {
-          successReturnToOrRedirect: SAML_SUCCESS_REDIRECT,
-          failureRedirect: SAML_FAILURE_REDIRECT_MESSAGE,
+          successReturnToOrRedirect: successRedirect,
+          failureRedirect: failureRedirect,
           failureMessage: true,
         })(req, res, next);
       },
@@ -326,6 +331,7 @@ class App {
     const storage = getMetadataArgsStorage();
     const spec = routingControllersToSpec(storage, routingControllersOptions, {
       components: {
+        schemas: schemas as { [schema: string]: unknown },
         securitySchemes: {
           basicAuth: {
             scheme: 'basic',
@@ -334,8 +340,8 @@ class App {
         },
       },
       info: {
-        description: `${APP_NAME} Proxy API`,
-        title: '',
+        description: 'Personakter',
+        title: 'API',
         version: '1.0.0',
       },
     });
@@ -362,5 +368,7 @@ class App {
     }
   }
 }
+
+//schemas: schemas as { [schema: string]: unknown }
 
 export default App;
