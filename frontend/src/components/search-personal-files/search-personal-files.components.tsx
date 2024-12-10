@@ -66,15 +66,20 @@ export const SearchPersonalFiles: React.FC = () => {
   };
 
   useEffect(() => {
-    if (employeeUsersEmployments.length !== 0 && query.length < 13) {
+    if (employeeUsersEmployments.length !== 0 && query.length < 12) {
       setIsSearch(false);
     }
   }, [employeeUsersEmployments, query]);
 
   useEffect(() => {
     if (query.length > 0) {
-      if (query.includes('/[a-zA-Z]/') || query.length < 13 || query[8] !== '-') {
-        setMessage('Personnumret måste innehålla siffror och efterlikna följande struktur: ååååmmdd-nnnn');
+      if (
+        query.includes('/[a-zA-Z]/') ||
+        query.length < 12 ||
+        query.length > 13 ||
+        (query.length === 13 && query[8] !== '-')
+      ) {
+        setMessage('Personnumret måste innehålla siffror och efterlikna följande struktur: ååååmmddnnnn');
       } else {
         setMessage('');
       }
@@ -88,7 +93,7 @@ export const SearchPersonalFiles: React.FC = () => {
       <div className="max-w-[590px] w-full pt-16 px-24 pb-24 shadow-100 rounded-button">
         <FormLabel>
           <span className="font-bold">Skriv fullständigt personnummer</span>
-          <span className="text-gray-500 font-normal"> (ååååmmdd-nnnn)</span>
+          <span className="text-gray-500 font-normal"> (ååååmmddnnnn)</span>
         </FormLabel>
         <SearchField
           data-cy="searchfield-personalfiles"
@@ -98,15 +103,19 @@ export const SearchPersonalFiles: React.FC = () => {
           onChange={(e) => {
             setQuery(e.target.value);
           }}
-          showSearchButton={query.length === 13 && query[8] === '-'}
-          onSearch={searchResultOfAD}
+          showSearchButton={(query.length === 13 && query[8] === '-') || query.length === 12}
+          onSearch={() => {
+            if ((query.length === 13 && query[8] === '-') || query.length === 12) {
+              searchResultOfAD();
+            }
+          }}
           onReset={() => {
             setIsSearch(false);
             setQuery('');
           }}
         />
         {message.length ?
-          <FormErrorMessage className="text-error mt-8" data-cy="not-found-error-message">
+          <FormErrorMessage className="mt-8" data-cy="not-found-error-message">
             {message}
           </FormErrorMessage>
         : <></>}
