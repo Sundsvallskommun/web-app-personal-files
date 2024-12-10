@@ -117,7 +117,7 @@ export const EmploymentsTab: React.FC = () => {
           </Table.Header>
           <Table.Body>
             <Table.Row>
-              <Table.Column className="flex-col">
+              <Table.Column className="flex-col flex-wrap">
                 <div className="flex justify-start gap-40 py-16 px-16 w-full">
                   <div className="flex flex-col gap-24">
                     <div className="flex flex-col">
@@ -127,7 +127,7 @@ export const EmploymentsTab: React.FC = () => {
                       </Label>
                     </div>
                     <div className="flex flex-col">
-                      <FormLabel>Team</FormLabel>
+                      <FormLabel>Anställningsform</FormLabel>
                       <Label className="w-fit" inverted>
                         {formOfEmployments.length !== 0 ?
                           formOfEmployments.find((x) => x.foeId === selectedEmployment.formOfEmploymentId).description
@@ -137,22 +137,22 @@ export const EmploymentsTab: React.FC = () => {
                   </div>
                   <div className="flex flex-col gap-24">
                     <div className="flex flex-col">
-                      <FormLabel>Avdelning</FormLabel>
-                      <p>{selectedEmployment.orgName}</p>
-                    </div>
-                    <div className="flex flex-col">
-                      <FormLabel>Verksamhet</FormLabel>
-                      <p>{selectedEmployment.topOrgName}</p>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-24">
-                    <div className="flex flex-col">
-                      <FormLabel>Legal enhet</FormLabel>
+                      <FormLabel>Kommun</FormLabel>
                       <p>
                         {companies.length !== 0 ?
                           companies.find((x) => x.companyId === selectedEmployment.companyId).displayName
                         : 'Saknar information'}
                       </p>
+                    </div>
+                    <div className="flex flex-col">
+                      <FormLabel>Förvaltning</FormLabel>
+                      <p>{selectedEmployment.topOrgName}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-24">
+                    <div className="flex flex-col">
+                      <FormLabel>Enhet</FormLabel>
+                      <p>{selectedEmployment.orgName}</p>
                     </div>
                   </div>
                 </div>
