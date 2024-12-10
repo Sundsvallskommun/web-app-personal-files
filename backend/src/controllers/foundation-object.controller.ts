@@ -9,6 +9,7 @@ import { formatOrgNr, OrgNumberFormat } from '@/utils/util';
 import { logger } from '@/utils/logger';
 import { CompaniesApiResponse, FormOfEmploymentsApiResponse } from '@/responses/foundation-object.response';
 import { Company, FormOfEmployment } from '@/data-contracts/fo/data-contracts';
+import { hasPermissions } from '@/middlewares/permissions.middleware';
 
 @Controller()
 export class FoundationObjectController {
@@ -16,7 +17,7 @@ export class FoundationObjectController {
 
   @Get('/companies')
   @OpenAPI({ summary: 'Fetch all companies' })
-  @UseBefore(authMiddleware)
+  @UseBefore(authMiddleware, hasPermissions(['canReadPF']))
   async companies(@Req() req: RequestWithUser, @Res() response: CompaniesApiResponse): Promise<{ data: Company[]; message: string }> {
     const url = `fo/1.0/companies`;
     const res = await this.apiService.get<Company[]>({ url }, req.user).catch(e => {
@@ -28,7 +29,7 @@ export class FoundationObjectController {
 
   @Get('/formofemployments')
   @OpenAPI({ summary: 'Fetch all form of employments' })
-  @UseBefore(authMiddleware)
+  @UseBefore(authMiddleware, hasPermissions(['canReadPF']))
   async formOfEmployments(
     @Req() req: RequestWithUser,
     @Res() response: FormOfEmploymentsApiResponse,

@@ -10,6 +10,7 @@ import { fileUploadOptions } from '@/utils/fileUploadOptions';
 import { DocumentCreateRequest } from '@/data-contracts/document/data-contracts';
 import { SearchDocument, DocumentType, DocumentData } from '@/responses/document.response';
 import { CreateDocument } from '@/interfaces/document.interface';
+import { hasPermissions } from '@/middlewares/permissions.middleware';
 
 interface ResponseData {
   data: any;
@@ -30,7 +31,7 @@ export class DocumentController {
 
   @Post('/document/upload')
   @OpenAPI({ summary: 'Upload document' })
-  @UseBefore(authMiddleware)
+  @UseBefore(authMiddleware, hasPermissions(['canUploadDocs']))
   async uploadDocument(
     @Req() req: RequestWithUser,
     @UploadedFiles('documentFiles', { options: fileUploadOptions, required: false }) files: Express.Multer.File[],
@@ -81,7 +82,7 @@ export class DocumentController {
 
   @Post('/document/search')
   @OpenAPI({ summary: 'Fetch documents on employment' })
-  @UseBefore(authMiddleware)
+  @UseBefore(authMiddleware, hasPermissions(['canReadDocs']))
   async getDocuments(@Req() req: RequestWithUser, @Body() documentData: SearchDocument): Promise<{ data: SearchDocument; message: string }> {
     await validateRequestBody(SearchDocument, documentData);
 
@@ -95,7 +96,7 @@ export class DocumentController {
 
   @Get('/document/:registrationNumber/files/:documentDataId')
   @OpenAPI({ summary: 'Fetch document' })
-  @UseBefore(authMiddleware)
+  @UseBefore(authMiddleware, hasPermissions(['canReadDocs']))
   async fetchDocument(
     @Req() req: RequestWithUser,
     @Param('registrationNumber') registrationNumber: string,
@@ -111,7 +112,7 @@ export class DocumentController {
 
   @Get('/document/types')
   @OpenAPI({ summary: 'Fetch document types' })
-  @UseBefore(authMiddleware)
+  @UseBefore(authMiddleware, hasPermissions(['canReadDocs']))
   async documentTypes(@Req() req: RequestWithUser, @Res() response: DocumentType): Promise<{ data: DocumentType; message: string }> {
     const url = `document/3.0/2281/admin/documenttypes`;
     const res = await this.apiService.get<DocumentType>({ url }, req.user).catch(e => {
@@ -123,7 +124,7 @@ export class DocumentController {
 
   @Delete('/document/:registrationNumber/files/:documentDataId')
   @OpenAPI({ summary: 'Delete document data from employment' })
-  @UseBefore(authMiddleware)
+  @UseBefore(authMiddleware, hasPermissions(['canDeleteDocs']))
   async deleteSupportAttachment(
     @Req() req: RequestWithUser,
     @Param('registrationNumber') registrationNumber: string,

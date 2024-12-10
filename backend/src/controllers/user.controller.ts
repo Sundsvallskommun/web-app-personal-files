@@ -1,12 +1,20 @@
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
-import { ClientUser } from '@/interfaces/users.interface';
+import { Permissions, User } from '@/interfaces/users.interface';
 import { UserApiResponse } from '@/responses/user.response';
 import authMiddleware from '@middlewares/auth.middleware';
 import { Controller, Get, Header, QueryParam, Req, Res, UseBefore } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import ApiService from '@/services/api.service';
 import { PortalPersonData } from '@/interfaces/employee.interface';
+interface ClientUser {
+  name: string;
+  givenName: string;
+  surname: string;
+  username: string;
+  permissions: Permissions;
+  role: string;
+}
 
 @Controller()
 export class UserController {
@@ -19,7 +27,7 @@ export class UserController {
   @ResponseSchema(UserApiResponse)
   @UseBefore(authMiddleware)
   async getUser(@Req() req: RequestWithUser, @Res() response: any): Promise<ClientUser> {
-    const { name, username, givenName, surname } = req.user;
+    const { name, username, givenName, surname, permissions, role } = req.user;
 
     if (!name) {
       throw new HttpException(400, 'Bad Request');
@@ -30,6 +38,8 @@ export class UserController {
       username: username,
       givenName: givenName,
       surname: surname,
+      permissions: permissions,
+      role: role,
     };
 
     return response.send({ data: userData, message: 'success' });

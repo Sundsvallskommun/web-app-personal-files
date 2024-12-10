@@ -1,18 +1,27 @@
+export interface Permissions {
+  canReadPF: boolean;
+  canUploadDocs: boolean;
+  canReadDocs: boolean;
+  canDeleteDocs: boolean;
+}
+
+/** Internal roles */
+export type InternalRole = 'pf_hr_admin' | 'pf_hr_superadmin';
+export enum InternalRoleEnum {
+  'pf_hr_admin',
+  'pf_hr_superadmin',
+}
+
+export type InternalRoleMap = Map<InternalRole, Partial<Permissions>>;
+
 export type User = {
-  // id: number;
   personId: string;
   name: string;
   givenName: string;
   surname: string;
   email: string;
   username: string;
-  // groups: string;
-  // permissions: Permissions;
-};
-
-export type ClientUser = {
-  name: string;
-  username: string;
-  givenName: string;
-  surname: string;
+  role: string;
+  groups: string;
+  permissions: Permissions;
 };

@@ -10,10 +10,15 @@
  */
 
 export interface User {
+  personId: string;
+  email: string;
+  groups: string;
   name: string;
   username: string;
   givenName: string;
   surname: string;
+  role: UserRoleEnum;
+  permissions: any;
 }
 
 export interface UserApiResponse {
@@ -102,4 +107,11 @@ export interface FormOfEmployment {
 export interface FormOfEmploymentsApiResponse {
   data: FormOfEmployment;
   message: string;
+}
+
+export enum UserRoleEnum {
+  PfHrAdmin = 'pf_hr_admin',
+  PfHrSuperadmin = 'pf_hr_superadmin',
+  Value0 = '0',
+  Value1 = '1',
 }

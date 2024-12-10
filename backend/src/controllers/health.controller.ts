@@ -24,6 +24,9 @@ export class HealthController {
       givenName: '',
       surname: '',
       email: '',
+      role: '',
+      groups: '',
+      permissions: undefined,
     };
     const res = await this.apiService.post<{ status: string }>({ url, data }, dummyUser).catch(e => {
       logger.error('Error when doing health check:', e);
