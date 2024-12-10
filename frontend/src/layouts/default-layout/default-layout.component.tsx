@@ -67,7 +67,7 @@ export default function DefaultLayout({
             <Avatar
               data-cy="usermenu"
               initials={`${user.givenName[0]}${user.surname[0]}`}
-              imageUrl={`${apiURL(`/user/avatar?width=44`)}`}
+              imageUrl={`${apiURL(`/user/avatar?width=44`) || ''}`}
             />
             <span className="font-bold">{user.name}</span>
           </div>
