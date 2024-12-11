@@ -5,6 +5,7 @@ import { __DEV__ } from '@sk-web-gui/react';
 import { emptyUser } from './defaults';
 import { ServiceResponse } from '@interfaces/services';
 import { User } from '@data-contracts/backend/data-contracts';
+import { apiURL } from '@utils/api-url';
 
 const handleSetUserResponse: (res: ApiResponse<User>) => User = (res) => ({
   personId: res.data.personId,
@@ -27,18 +28,29 @@ const getMe: () => Promise<ServiceResponse<User>> = () => {
       error: e.response?.status ?? 'UNKNOWN ERROR',
     }));
 };
+const getAvatar: () => Promise<ServiceResponse<string>> = () => {
+  return apiService
+    .get<ApiResponse<string>>('user/avatar?width=44')
+    .then(() => ({ data: apiURL(`/user/avatar?width=44`) }))
+    .catch(() => ({
+      data: '',
+    }));
+};
 
 interface State {
   user: User;
+  avatar: string;
 }
 interface Actions {
   setUser: (user: User) => void;
   getMe: () => Promise<ServiceResponse<User>>;
+  getAvatar: () => Promise<ServiceResponse<string>>;
   reset: () => void;
 }
 
 const initialState: State = {
   user: emptyUser,
+  avatar: '',
 };
 
 export const useUserStore = createWithEqualityFn<State & Actions>()(
@@ -54,6 +66,15 @@ export const useUserStore = createWithEqualityFn<State & Actions>()(
           set(() => ({ user: user }));
         }
         return { data: user };
+      },
+      getAvatar: async () => {
+        let avatar = get().avatar;
+        const res = await getAvatar();
+        if (!res.error) {
+          avatar = res.data;
+          set(() => ({ avatar: avatar }));
+        }
+        return { data: avatar };
       },
       reset: () => {
         set(initialState);

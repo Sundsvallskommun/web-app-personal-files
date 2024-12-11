@@ -1,6 +1,6 @@
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
-import { Permissions, User } from '@/interfaces/users.interface';
+import { Permissions } from '@/interfaces/users.interface';
 import { UserApiResponse } from '@/responses/user.response';
 import authMiddleware from '@middlewares/auth.middleware';
 import { Controller, Get, Header, QueryParam, Req, Res, UseBefore } from 'routing-controllers';

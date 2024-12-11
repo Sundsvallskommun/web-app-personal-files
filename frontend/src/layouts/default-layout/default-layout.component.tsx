@@ -1,10 +1,10 @@
-import { CookieConsent, Footer, Header, Link, Avatar } from '@sk-web-gui/react';
+import { CookieConsent, Footer, Header, Link, Avatar, Spinner } from '@sk-web-gui/react';
 import Head from 'next/head';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
-import { apiURL } from '@utils/api-url';
 import { useUserStore } from '@services/user-service/user-service';
+import { useEffect, useState } from 'react';
 
 interface DefaultLayoutProps {
   children: React.ReactNode;
@@ -33,6 +33,10 @@ export default function DefaultLayout({
 
   const { t } = useTranslation();
   const user = useUserStore((s) => s.user);
+  const getAvatar = useUserStore((s) => s.getAvatar);
+  const avatar = useUserStore((s) => s.avatar);
+
+  const [avatarIsLoading, setAvatarIsLoading] = useState(false);
 
   const setFocusToMain = () => {
     const contentElement = document.getElementById('content');
@@ -42,6 +46,10 @@ export default function DefaultLayout({
   const handleLogoClick = () => {
     router.push(logoLinkHref);
   };
+  useEffect(() => {
+    setAvatarIsLoading(true);
+    getAvatar().then(() => setAvatarIsLoading(false));
+  }, []);
 
   return (
     <div className="DefaultLayout full-page-layout">
@@ -64,11 +72,10 @@ export default function DefaultLayout({
         logoLinkOnClick={handleLogoClick}
         userMenu={
           <div className="flex gap-12 items-center">
-            <Avatar
-              data-cy="usermenu"
-              initials={`${user.givenName[0]}${user.surname[0]}`}
-              imageUrl={`${apiURL(`/user/avatar?width=44`) || ''}`}
-            />
+            {avatarIsLoading ?
+              <Spinner />
+            : <Avatar data-cy="usermenu" initials={`${user.givenName[0]}${user.surname[0]}`} imageUrl={`${avatar}`} />}
+
             <span className="font-bold">{user.name}</span>
           </div>
         }
