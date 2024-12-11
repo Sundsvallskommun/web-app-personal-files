@@ -1,38 +1,54 @@
-// import { AUTHORIZED_GROUPS } from '@/config';
-import { Permissions, InternalRole, ADRole } from '@interfaces/auth.interface';
+import { AUTHORIZED_GROUPS } from '@/config';
+import { logger } from '@/utils/logger';
+import { Permissions, InternalRole } from '@interfaces/users.interface';
 
-// export function authorizeGroups(groups) {
-//   const authorizedGroupsList = AUTHORIZED_GROUPS.split(',');
-//   const groupsList = groups.split(',').map((g: string) => g.toLowerCase());
-//   return authorizedGroupsList.some(authorizedGroup => groupsList.includes(authorizedGroup));
-// }
+export function authorizeGroups(groups) {
+  logger.info('authorizing groups', groups);
+  logger.info('against', AUTHORIZED_GROUPS);
+  const authorizedGroupsList = AUTHORIZED_GROUPS.split(',');
+  const groupsList = groups.split(',').map((g: string) => g.toLowerCase());
+  return authorizedGroupsList.some(authorizedGroup => groupsList.includes(authorizedGroup.toLowerCase()));
+}
 
 export const defaultPermissions: () => Permissions = () => ({
-  canEditSystemMessages: false,
+  canReadPF: false,
+  canUploadDocs: false,
+  canReadDocs: false,
+  canDeleteDocs: false,
 });
 
 enum RoleOrderEnum {
-  'app_read',
-  'app_admin',
+  'pf_hr_admin',
+  'pf_hr_superadmin',
 }
 
 const roles = new Map<InternalRole, Partial<Permissions>>([
   [
-    'app_admin',
+    'pf_hr_admin',
     {
-      canEditSystemMessages: true,
+      canReadPF: true,
+      canUploadDocs: true,
+      canReadDocs: true,
     },
   ],
-  ['app_read', {}],
+  [
+    'pf_hr_superadmin',
+    {
+      canReadPF: true,
+      canUploadDocs: true,
+      canReadDocs: true,
+      canDeleteDocs: true,
+    },
+  ],
 ]);
 
 type RoleADMapping = {
-  [key in ADRole]: InternalRole;
+  [key: string]: InternalRole;
 };
-const roleADMapping: RoleADMapping = {
-  sg_appl_app_read: 'app_read',
-  sg_appl_app_admin: 'app_admin',
-};
+
+let roleADMapping: RoleADMapping = {};
+roleADMapping[process.env.ADMIN_GROUP.toLocaleLowerCase()] = 'pf_hr_admin';
+roleADMapping[process.env.SUPERADMIN_GROUP.toLocaleLowerCase()] = 'pf_hr_superadmin';
 
 /**
  *
@@ -40,7 +56,7 @@ const roleADMapping: RoleADMapping = {
  * @param internalGroups Whether to use internal groups or external group-mappings
  * @returns collected permissions for all matching role groups
  */
-export const getPermissions = (groups: InternalRole[] | ADRole[], internalGroups = false): Permissions => {
+export const getPermissions = (groups: InternalRole[] | string[], internalGroups = false): Permissions => {
   const permissions: Permissions = defaultPermissions();
   groups.forEach(group => {
     const groupLower = group.toLowerCase();
@@ -62,7 +78,7 @@ export const getPermissions = (groups: InternalRole[] | ADRole[], internalGroups
  * @param groups List of AD roles
  * @returns role with most permissions
  */
-export const getRole = (groups: ADRole[]) => {
+export const getRole = (groups: string[]) => {
   if (groups.length == 1) return roleADMapping[groups[0]]; // app_read
 
   const roles: InternalRole[] = [];

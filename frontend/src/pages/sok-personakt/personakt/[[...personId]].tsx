@@ -7,6 +7,8 @@ import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import { Divider } from '@sk-web-gui/react';
 import { TabsWrapper } from '@components/personal-file/tabs/tabs-wrapper.components';
+import { hasPermission } from '@utils/has-permission';
+import { useUserStore } from '@services/user-service/user-service';
 
 export default function Personakt() {
   const router = useRouter();
@@ -15,6 +17,9 @@ export default function Personakt() {
   const getEmploymentsById = useEmployeeStore((s) => s.getEmploymentsById);
   const setEmploymentslist = useEmployeeStore((s) => s.setEmployments);
   const personId = routerPersonId && Array.isArray(routerPersonId) ? routerPersonId.pop() : null;
+  const user = useUserStore((s) => s.user);
+
+  const { CANUPLOAD } = hasPermission(user);
 
   useEffect(() => {
     const loadPersonalFile = async () => {
@@ -55,8 +60,12 @@ export default function Personakt() {
           </h1>
           <div className="flex gap-16">
             <PersonalFileEmploymentFilter />
-            <Divider orientation="vertical" />
-            <PersonalFileUploadDocument />
+            {CANUPLOAD && (
+              <>
+                <Divider orientation="vertical" />
+                <PersonalFileUploadDocument />
+              </>
+            )}
           </div>
         </div>
         <div className="max-w-[996px] w-full m-auto">

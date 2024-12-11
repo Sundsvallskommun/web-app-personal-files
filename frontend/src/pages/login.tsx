@@ -1,23 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/router';
-import { Button, FormErrorMessage } from '@sk-web-gui/react';
 import EmptyLayout from '@layouts/empty-layout/empty-layout.component';
-import LoaderFullScreen from '@components/loader/loader-fullscreen';
-import { appURL } from '@utils/app-url';
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { Button, FormErrorMessage } from '@sk-web-gui/react';
+import { useRouter } from 'next/router';
+import { useEffect, useRef, useState } from 'react';
 
 export default function Start() {
   const router = useRouter();
-  const [errorMessage, setErrorMessage] = useState('');
-  const [mounted, setMounted] = useState(false);
-  const { t } = useTranslation();
+  const [message, setMessage] = useState<string>();
 
   const params = new URLSearchParams(window.location.search);
   const isLoggedOut = params.get('loggedout') === '';
   const failMessage = params.get('failMessage');
-  // Turn on/off automatic login
-  const autoLogin = true;
 
   const initalFocus = useRef(null);
   const setInitalFocus = () => {
@@ -28,67 +20,44 @@ export default function Start() {
 
   const onLogin = () => {
     // NOTE: send user to login with SSO
-    const path = new URLSearchParams(window.location.search).get('path') || router.query.path || '';
-    router.push({
-      pathname: `${process.env.NEXT_PUBLIC_API_URL}/saml/login`,
-      query: {
-        successRedirect: `${appURL()}${path}`,
-      },
-    });
+    router.push(`${process.env.NEXT_PUBLIC_API_URL}/saml/login`);
   };
 
   useEffect(() => {
     setInitalFocus();
-    if (!router.isReady) return;
-    setTimeout(() => setMounted(true), 500); // to not flash the login-screen on autologin
-    if (isLoggedOut) {
-      router.push(
-        {
-          pathname: '/login',
-        },
-        '/login',
-        { shallow: true }
-      );
-    } else {
-      if (!failMessage && autoLogin) {
-        // autologin
-        onLogin();
-      } else if (failMessage) {
-        setErrorMessage(t(`login:errors.${failMessage}`));
-      }
+    console.log(router.query?.failMessage);
+    if (router.query?.failMessage === 'SAML_MISSING_GROUP') {
+      setMessage('Användaren saknar rätt grupper');
+    } else if (router.query?.failMessage === 'SAML_MISSING_ATTRIBUTES') {
+      setMessage('Användaren saknar attribut');
+    } else if (router.query?.failMessage === 'Missing profile attributes') {
+      setMessage('Användaren saknar rätt attribut');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.isReady]);
-
-  if (!mounted && !failMessage) {
-    // to not flash the login-screen on autologin
-    return <LoaderFullScreen />;
-  }
+  }, [router]);
 
   return (
-    <EmptyLayout title={`${process.env.NEXT_PUBLIC_APP_NAME} - Logga In`}>
-      <main>
+    <>
+      <EmptyLayout title={`Personakter - Logga In`}>
         <div className="flex items-center justify-center min-h-screen">
-          <div className="max-w-5xl w-full flex flex-col text-light-primary bg-inverted-background-content p-20 shadow-lg text-left">
-            <div className="mb-14">
-              <h1 className="mb-10 text-xl">{process.env.NEXT_PUBLIC_APP_NAME}</h1>
-              <p className="my-0">{t('login:description')}</p>
+          <div className="max-w-5xl w-full flex flex-col bg-background-content p-20 shadow-lg text-left">
+            <div className="text-center">
+              <h3 className="mb-20">
+                Logga in till <br aria-hidden />
+                Personakter
+              </h3>
+              {message && (
+                <FormErrorMessage>
+                  <p className="mb-20">Det gick inte att logga in. {message}</p>
+                </FormErrorMessage>
+              )}
             </div>
 
-            <Button inverted onClick={() => onLogin()} ref={initalFocus} data-cy="loginButton">
-              {t('common:login')}
+            <Button color="vattjom" onClick={() => onLogin()} ref={initalFocus} data-cy="loginButton">
+              Logga in
             </Button>
-
-            {errorMessage && <FormErrorMessage className="mt-lg">{errorMessage}</FormErrorMessage>}
           </div>
         </div>
-      </main>
-    </EmptyLayout>
+      </EmptyLayout>
+    </>
   );
 }
-
-export const getServerSideProps = async ({ locale }) => ({
-  props: {
-    ...(await serverSideTranslations(locale, ['common', 'login'])),
-  },
-});

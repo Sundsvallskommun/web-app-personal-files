@@ -8,13 +8,14 @@ import { OpenAPI } from 'routing-controllers-openapi';
 import { formatOrgNr, OrgNumberFormat } from '@/utils/util';
 import { logger } from '@/utils/logger';
 import { Employee, LoginName, PortalPersonData } from '@/interfaces/employee.interface';
+import { hasPermissions } from '@/middlewares/permissions.middleware';
 @Controller()
 export class EmployeeController {
   private apiService = new ApiService();
 
   @Get('/portalpersondata/:personalNumber/loginname')
   @OpenAPI({ summary: 'Fetch login name' })
-  @UseBefore(authMiddleware)
+  @UseBefore(authMiddleware, hasPermissions(['canReadPF']))
   async loginName(
     @Req() req: RequestWithUser,
     @Param('personalNumber') personalNumber: string,
@@ -30,7 +31,7 @@ export class EmployeeController {
 
   @Get('/portalpersondata/personal/:loginName')
   @OpenAPI({ summary: 'Fetch user information for given AD user' })
-  @UseBefore(authMiddleware)
+  @UseBefore(authMiddleware, hasPermissions(['canReadPF']))
   async employee(
     @Req() req: RequestWithUser,
     @Param('loginName') loginName: string,
@@ -46,7 +47,7 @@ export class EmployeeController {
 
   @Get('/portalpersondata/:personId/employeeUsersEmployments')
   @OpenAPI({ summary: 'Fetch employed user information' })
-  @UseBefore(authMiddleware)
+  @UseBefore(authMiddleware, hasPermissions(['canReadPF']))
   async employeeUsersEmployments(
     @Req() req: RequestWithUser,
     @Param('personId') personId: string,

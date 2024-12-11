@@ -4,7 +4,7 @@ import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { apiURL } from '@utils/api-url';
-import { getAvatar, useUserStore } from '@services/user-service/user-service';
+import { useUserStore } from '@services/user-service/user-service';
 
 interface DefaultLayoutProps {
   children: React.ReactNode;
@@ -43,20 +43,6 @@ export default function DefaultLayout({
     router.push(logoLinkHref);
   };
 
-  const image = () => {
-    getAvatar('44')
-      .then((res) => {
-        if (res !== undefined) {
-          return res;
-        } else {
-          return '';
-        }
-      })
-      .catch((e) => {
-        return '';
-      });
-  };
-
   return (
     <div className="DefaultLayout full-page-layout">
       <Head>
@@ -78,7 +64,11 @@ export default function DefaultLayout({
         logoLinkOnClick={handleLogoClick}
         userMenu={
           <div className="flex gap-12 items-center">
-            <Avatar data-cy="usermenu" initials={`${user.givenName[0]}${user.surname[0]}`} imageUrl={image()} />
+            <Avatar
+              data-cy="usermenu"
+              initials={`${user.givenName[0]}${user.surname[0]}`}
+              imageUrl={`${apiURL(`/user/avatar?width=44`) || ''}`}
+            />
             <span className="font-bold">{user.name}</span>
           </div>
         }

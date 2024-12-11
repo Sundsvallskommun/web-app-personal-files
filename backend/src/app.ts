@@ -28,11 +28,14 @@ import {
   SAML_CALLBACK_URL,
   SAML_ENTRY_SSO,
   SAML_FAILURE_REDIRECT,
+  SAML_FAILURE_REDIRECT_MESSAGE,
   SAML_IDP_PUBLIC_CERT,
   SAML_ISSUER,
   SAML_LOGOUT_CALLBACK_URL,
+  SAML_LOGOUT_REDIRECT,
   SAML_PRIVATE_KEY,
   SAML_PUBLIC_KEY,
+  SAML_SUCCESS_REDIRECT,
   SECRET_KEY,
   SESSION_MEMORY,
   SWAGGER_ENABLED,
@@ -45,6 +48,7 @@ import { join } from 'path';
 import { isValidUrl } from './utils/util';
 import { additionalConverters } from './utils/custom-validation-classes';
 import { User } from './interfaces/users.interface';
+import { authorizeGroups, getPermissions, getRole } from './services/authorization.service';
 
 const SessionStoreCreate = SESSION_MEMORY ? createMemoryStore(session) : createFileStore(session);
 const sessionTTL = 4 * 24 * 60 * 60;
@@ -90,7 +94,7 @@ const samlStrategy = new Strategy(
     const groups = profile['http://schemas.xmlsoap.org/claims/Group']?.join(',') ?? profile['groups'];
     const username = profile['urn:oid:0.9.2342.19200300.100.1.1'];
 
-    if (!givenName || !sn || !email || !groups || !username) {
+    if (!givenName || !sn || !groups || !username) {
       logger.error(
         'Could not extract necessary profile data fields from the IDP profile. Does the Profile interface match the IDP profile response? The profile response may differ, for example Onegate vs ADFS.',
       );
@@ -100,15 +104,17 @@ const samlStrategy = new Strategy(
       });
     }
 
-    //   const groupList: ADRole[] =
-    //   groups !== undefined
-    //     ? (groups
-    //         .split(',')
-    //         .map(x => x.toLowerCase())
-    //         .filter(x => x.includes('sg_appl_app_')) as ADRole[])
-    //     : [];
+    if (!authorizeGroups(groups)) {
+      logger.error('Group authorization failed. Is the user a member of the authorized groups?');
+      return done(null, null, {
+        name: 'SAML_MISSING_GROUP',
+        message: 'SAML_MISSING_GROUP',
+      });
+    }
 
-    // const appGroups: ADRole[] = groupList.length > 0 ? groupList : groupList.concat('sg_appl_app_read');
+    const groupList: string[] = groups !== undefined ? (groups.split(',').map(x => x.toLowerCase()) as string[]) : [];
+
+    const appGroups: string[] = groupList.length > 0 ? groupList : [];
 
     try {
       // const personNumber = profile.citizenIdentifier;
@@ -122,22 +128,24 @@ const samlStrategy = new Strategy(
       //   });
       // }
 
-      const findUser: User = {
+      const findUser = {
         personId: '',
         name: `${givenName} ${sn}`,
         givenName: givenName,
         surname: sn,
         username: username,
         email: email,
-        // groups: appGroups,
-        // role: getRole(appGroups),
-        // permissions: getPermissions(appGroups),
+        groups: appGroups,
+        role: getRole(appGroups),
+        permissions: getPermissions(appGroups),
       };
 
       done(null, findUser);
     } catch (err) {
       if (err instanceof HttpException && err?.status === 404) {
-        // Handle missing person form Citizen
+        // TODO: Handle missing person form Citizen?
+        logger.error('Error when calling Citizen:');
+        logger.error(err);
       }
       done(err);
     }
@@ -184,7 +192,7 @@ class App {
     this.app.use(hpp());
     this.app.use(helmet());
     this.app.use(compression());
-    this.app.use(express.json());
+    this.app.use(express.json({ limit: '500kb' }));
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
 
@@ -194,6 +202,9 @@ class App {
         resave: false,
         saveUninitialized: false,
         store: sessionStore,
+        cookie: {
+          path: BASE_URL_PREFIX,
+        },
       }),
     );
 
@@ -206,8 +217,6 @@ class App {
       (req, res, next) => {
         if (req.session.returnTo) {
           req.query.RelayState = req.session.returnTo;
-        } else if (req.query.successRedirect) {
-          req.query.RelayState = req.query.successRedirect;
         }
         next();
       },
@@ -224,71 +233,76 @@ class App {
       res.status(200).send(metadata);
     });
 
-    this.app.get(
-      `${BASE_URL_PREFIX}/saml/logout`,
-      (req, res, next) => {
-        if (req.session.returnTo) {
-          req.query.RelayState = req.session.returnTo;
-        } else if (req.query.successRedirect) {
-          req.query.RelayState = req.query.successRedirect;
-        }
-        next();
-      },
-      (req, res, next) => {
-        const successRedirect = req.query.successRedirect;
-        samlStrategy.logout(req as any, () => {
-          req.logout(err => {
-            if (err) {
-              return next(err);
-            }
-            res.redirect(successRedirect as string);
-          });
+    this.app.get(`${BASE_URL_PREFIX}/saml/logout`, bodyParser.urlencoded({ extended: false }), (req, res, next) => {
+      samlStrategy.logout(req as any, () => {
+        req.logout(err => {
+          if (err) {
+            return next(err);
+          }
+          // FIXME: should we redirect here or should client do it?
+          res.redirect(SAML_LOGOUT_REDIRECT);
         });
-      },
-    );
+      });
+    });
 
     this.app.get(`${BASE_URL_PREFIX}/saml/logout/callback`, bodyParser.urlencoded({ extended: false }), (req, res, next) => {
+      // FIXME: is this enough or do we need to do something more?
       req.logout(err => {
         if (err) {
           return next(err);
         }
-
+        // FIXME: should we redirect here or should client do it?
+        res.redirect(SAML_LOGOUT_REDIRECT);
         let successRedirect, failureRedirect;
         if (isValidUrl(req.body.RelayState)) {
           successRedirect = req.body.RelayState;
         }
 
         if (req.session.messages?.length > 0) {
-          failureRedirect = successRedirect + `?failMessage=${req.session.messages[0]}`;
+          failureRedirect = SAML_FAILURE_REDIRECT_MESSAGE + `?failMessage=${req.session.messages[0]}`;
         } else {
-          failureRedirect = successRedirect + `?failMessage='SAML_UNKNOWN_ERROR'`;
+          failureRedirect = SAML_FAILURE_REDIRECT_MESSAGE + `?failMessage='SAML_UNKNOWN_ERROR'`;
         }
         if (failureRedirect) {
           res.redirect(failureRedirect);
         } else {
-          res.redirect(successRedirect);
+          res.redirect(SAML_SUCCESS_REDIRECT);
         }
+        //
       });
     });
 
-    this.app.post(`${BASE_URL_PREFIX}/saml/login/callback`, bodyParser.urlencoded({ extended: false }), (req, res, next) => {
-      let successRedirect, failureRedirect;
-      if (isValidUrl(req.body.RelayState)) {
-        successRedirect = req.body.RelayState;
-      }
-
-      if (req.session.messages?.length > 0) {
-        failureRedirect = successRedirect + `?failMessage=${req.session.messages[0]}`;
-      } else {
-        failureRedirect = successRedirect + `?failMessage='SAML_UNKNOWN_ERROR'`;
-      }
-
-      passport.authenticate('saml', {
-        successReturnToOrRedirect: successRedirect,
-        failureRedirect: failureRedirect,
-        failureMessage: true,
-      })(req, res, next);
+    //To handle failure on backend, failureRedirect here
+    this.app.get(`${BASE_URL_PREFIX}/saml/login/failure`, bodyParser.urlencoded({ extended: false }), (req, res, next) => {
+      res.redirect(
+        SAML_FAILURE_REDIRECT_MESSAGE + `?failMessage=${req.session.messages?.length > 0 ? req.session.messages[0] : 'SAML_UNKNOWN_ERROR'}`,
+      );
     });
+
+    this.app.post(
+      `${BASE_URL_PREFIX}/saml/login/callback`,
+      bodyParser.urlencoded({ extended: false }),
+      (req, res, next) => {
+        let successRedirect, failureRedirect;
+        if (isValidUrl(req.body.RelayState)) {
+          successRedirect = req.body.RelayState;
+        }
+
+        if (req.session.messages?.length > 0) {
+          failureRedirect = SAML_FAILURE_REDIRECT_MESSAGE + `?failMessage=${req.session.messages[0]}`;
+        } else {
+          failureRedirect = SAML_FAILURE_REDIRECT_MESSAGE + `?failMessage='SAML_UNKNOWN_ERROR'`;
+        }
+        passport.authenticate('saml', {
+          successReturnToOrRedirect: successRedirect,
+          failureRedirect: failureRedirect,
+          failureMessage: true,
+        })(req, res, next);
+      },
+      (req, res) => {
+        res.redirect(SAML_SUCCESS_REDIRECT);
+      },
+    );
   }
 
   private initializeRoutes(controllers: Function[]) {
@@ -308,11 +322,9 @@ class App {
     const schemas = validationMetadatasToSchemas({
       classTransformerMetadataStorage: defaultMetadataStorage,
       refPointerPrefix: '#/components/schemas/',
-      additionalConverters: additionalConverters,
     });
 
     const routingControllersOptions = {
-      routePrefix: `${BASE_URL_PREFIX}`,
       controllers: controllers,
     };
 
@@ -328,13 +340,12 @@ class App {
         },
       },
       info: {
-        title: `${APP_NAME} Proxy API`,
-        description: '',
+        description: 'Personakter',
+        title: 'API',
         version: '1.0.0',
       },
     });
 
-    this.app.use(`${BASE_URL_PREFIX}/swagger.json`, (req, res) => res.json(spec));
     this.app.use(`${BASE_URL_PREFIX}/api-docs`, swaggerUi.serve, swaggerUi.setup(spec));
   }
 
@@ -357,5 +368,7 @@ class App {
     }
   }
 }
+
+//schemas: schemas as { [schema: string]: unknown }
 
 export default App;
