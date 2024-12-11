@@ -1,5 +1,7 @@
 import LoaderFullScreen from '@components/loader/loader-fullscreen';
+import EmptyLayout from '@layouts/empty-layout/empty-layout.component';
 import { useUserStore } from '@services/user-service/user-service';
+import { hasPermission } from '@utils/has-permission';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
@@ -20,13 +22,18 @@ export const LoginGuard: React.FC<{ children?: React.ReactNode }> = ({ children 
     return <LoaderFullScreen />;
   }
 
+  const { CANREADPF } = hasPermission(user);
+
   // Routes by permissions
-  // if (
-  //   (router.pathname == '/route-by-permission' && !user.permissions.canEditSystemMessages)
-  // ) {
-  //   router.push('/');
-  //   return <LoaderFullScreen />;
-  // }
+  if (router.pathname == '/sok-personakt' && !CANREADPF) {
+    router.push('/');
+    return (
+      <EmptyLayout
+        title={'Personakter'}
+        children={<p>Du saknar behörigheter för att nå den här sidan</p>}
+      ></EmptyLayout>
+    );
+  }
 
   return <>{children}</>;
 };

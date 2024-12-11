@@ -61,11 +61,11 @@ export const EmploymentsTab: React.FC = () => {
     const metadata: MetaData[] = [
       {
         key: 'employmentId',
-        matchesAny: [`${selectedEmployment.empRowId}`],
+        matchesAny: [`${selectedEmployment?.empRowId}`],
       },
       {
         key: 'partyId',
-        matchesAny: [`${employeeUsersEmployments[0].personId}`],
+        matchesAny: [`${employeeUsersEmployments[0]?.personId}`],
       },
     ];
     getDocumentList(metadata);
@@ -75,7 +75,7 @@ export const EmploymentsTab: React.FC = () => {
     const list: documentDataList[] = [];
     if (documentList?.documents) {
       documentList.documents
-        .filter((document) => document.metadataList.find((x) => x.value === selectedEmployment.empRowId))
+        .filter((document) => document.metadataList.find((x) => x.value === selectedEmployment?.empRowId))
         .forEach((document) => {
           const dateTime = () => {
             const date = dayjs(document.created).date();
@@ -89,7 +89,7 @@ export const EmploymentsTab: React.FC = () => {
           if (document.documentData.length !== 0) {
             document.documentData.forEach((data) => {
               list.push({
-                fileName: `${data.fileName} ${documentTypes && `(${documentTypes.find((x) => x.type === document.type).displayName})`}`,
+                fileName: `${data.fileName} ${documentTypes && `(${documentTypes.find((x) => x.type === document.type)?.displayName})`}`,
                 registrationNumber: document.registrationNumber,
                 id: data.id,
                 mimeType: data.mimeType,
