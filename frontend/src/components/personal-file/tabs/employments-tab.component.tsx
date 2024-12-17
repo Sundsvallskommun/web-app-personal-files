@@ -173,12 +173,12 @@ export const EmploymentsTab: React.FC = () => {
                       <Spinner size={4} />
                     : documentDataList?.length === 0 ?
                       <span>Inga dokument finns att visa</span>
-                    : <div className="flex flex-col gap-8">
+                    : <div className="flex flex-col gap-8" data-cy="document-list">
                         {documentDataList
                           ?.sort((a, b) => b.createdOriginal?.getTime() - a.createdOriginal?.getTime())
                           .map((document, idx) => {
                             return (
-                              <div key={`document-${idx}`}>
+                              <div key={`document-${idx}`} data-cy={`document-${idx}`}>
                                 <div className="flex justify-between items-center p-12">
                                   <div className="flex items-center gap-8">
                                     <div className={`self-center bg-vattjom-surface-accent p-12 rounded w-fit`}>

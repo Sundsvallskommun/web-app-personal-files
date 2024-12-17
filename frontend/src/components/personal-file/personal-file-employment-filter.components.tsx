@@ -28,6 +28,7 @@ export const PersonalFileEmploymentFilter: React.FC = () => {
     <div className="flex gap-8 items-center w-full">
       <FormLabel>Visa anställning:</FormLabel>
       <Select
+        data-cy="selectemployment"
         value={employmentId}
         onChange={(e) => {
           setValue('employmentId', e.target.value);
