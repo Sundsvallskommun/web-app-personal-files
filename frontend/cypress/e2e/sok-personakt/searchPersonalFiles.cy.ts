@@ -1,3 +1,5 @@
+/// <reference types="cypress" />
+
 import { mockEmployee } from 'cypress/fixtures/mockEmployee';
 import { mockMe } from 'cypress/fixtures/mockMe';
 
@@ -5,22 +7,26 @@ describe('Serach personal files', () => {
   beforeEach(() => {
     cy.intercept('GET', '**/me', mockMe);
     cy.visit('http://localhost:3000/sok-personakt');
+
     cy.get('.sk-cookie-consent-btn-wrapper').contains('Godkänn alla').click();
   });
 
-  it('displays the logged in users initials', () => {
+  it('Displays the logged in users initials', () => {
     const initials = 'MT';
     cy.get('[data-cy=usermenu] span').contains(initials).should('exist');
   });
 
-  it('displays the searchField and searches personal file', () => {
-    cy.intercept('GET', `**/portalpersondata/**/employeeUsersEmployments`, mockEmployee).as('getEmployeeData');
+  it('Displays the searchField and searches personal file', () => {
+    cy.intercept('GET', `**/portalpersondata/**/loginname`, mockEmployee).as('getLogin');
+    cy.intercept('GET', `**/portalpersondata/personal/**`, mockEmployee);
+    cy.intercept('GET', `**/portalpersondata/**/employeeUsersEmployments`, mockEmployee);
+
     cy.get('[data-cy="searchfield-personalfiles"][placeholder="Skriv personnummer"]').should('exist');
-    cy.get('[data-cy="searchfield-personalfiles"][placeholder="Skriv personnummer"]').type('19820202-1234');
+    cy.get('[data-cy="searchfield-personalfiles"][placeholder="Skriv personnummer"]').type('198104197838');
     cy.get('button.sk-search-field-button-reset').should('exist');
     cy.get('button.sk-search-field-button-search').contains('Sök').should('exist').click();
 
-    cy.wait('@getEmployeeData');
+    cy.wait('@getLogin');
 
     cy.get('[data-cy="personalfile-result-table"]').should('exist');
 

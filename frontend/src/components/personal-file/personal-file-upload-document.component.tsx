@@ -77,7 +77,7 @@ export const PersonalFileUploadDocument: React.FC = () => {
 
   return (
     <div>
-      <Button variant="tertiary" onClick={() => setIsOpen(true)}>
+      <Button data-cy="upload-document" variant="tertiary" onClick={() => setIsOpen(true)}>
         Ladda upp
       </Button>
 
