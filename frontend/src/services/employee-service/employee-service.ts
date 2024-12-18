@@ -79,6 +79,7 @@ interface Actions {
   setSelectedEmployment: (selectedEmployment: Employment) => void;
   setEmployee: (employee: Employee[]) => void;
   setEmployments: (employmentslist: Employment[]) => void;
+  setEmployeeUserEmployments: (employeeUsersEmployments: Employee[]) => void;
   getADUserEmployments: (personalNumber: string) => Promise<ServiceResponse<Employee[]>>;
   getEmploymentsById: (personId: string) => Promise<ServiceResponse<Employee[]>>;
   reset: () => void;
@@ -108,6 +109,7 @@ export const useEmployeeStore = createWithEqualityFn<
     persist(
       (set, get) => ({
         ...initialState,
+        setEmployeeUserEmployments: (employeeUsersEmployments) => set(() => ({ employeeUsersEmployments })),
         setSelectedEmployment: (selectedEmployment) => set(() => ({ selectedEmployment })),
         setEmployee: (employeeUsersEmployments) => set(() => ({ employeeUsersEmployments })),
         setEmployments: (employmentslist) => set(() => ({ employmentslist })),
