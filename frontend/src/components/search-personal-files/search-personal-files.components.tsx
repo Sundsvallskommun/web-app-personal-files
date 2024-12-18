@@ -146,7 +146,9 @@ export const SearchPersonalFiles: React.FC = () => {
                 <Button
                   variant="tertiary"
                   onClick={() => {
-                    setSelectedEmployment(employmentslist[0]);
+                    setSelectedEmployment(
+                      employmentslist.sort((a, b) => Number(b.isMainEmployment) - Number(a.isMainEmployment))[0]
+                    );
                     router.push(`sok-personakt/personakt/${employeeUsersEmployments[0].personId}`);
                   }}
                 >

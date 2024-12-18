@@ -14,7 +14,9 @@ export const PersonalFileEmploymentFilter: React.FC = () => {
 
   const { watch, setValue, getValues, trigger } = useForm<PersonalFileEmploymentFilterModel>({
     defaultValues: {
-      employmentId: selectedEmployment.empRowId || employmentslist[0].empRowId,
+      employmentId:
+        selectedEmployment.empRowId ||
+        employmentslist.sort((a, b) => Number(b.isMainEmployment) - Number(a.isMainEmployment))[0].empRowId,
     },
     mode: 'onChange', // NOTE: Needed if we want to disable submit until valid
   });
