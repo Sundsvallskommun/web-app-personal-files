@@ -26,6 +26,7 @@ export const SearchPersonalFiles: React.FC = () => {
   const getADUserEmployments = useEmployeeStore((s) => s.getADUserEmployments);
   const employeeUsersEmployments = useEmployeeStore((s) => s.employeeUsersEmployments);
   const setSelectedEmployment = useEmployeeStore((s) => s.setSelectedEmployment);
+  const setEmployeeUserEmployments = useEmployeeStore((s) => s.setEmployeeUserEmployments);
   const { t } = useTranslation();
   const router = useRouter();
   const toastMessage = useSnackbar();
@@ -38,13 +39,15 @@ export const SearchPersonalFiles: React.FC = () => {
         const employments = [];
         res.data.map((users) =>
           users.employments.map((emp) => {
-            if (emp.isManual === false) {
+            if (emp.isManual === false && emp.benefitGroupId === 44) {
               employments.push(emp);
             }
           })
         );
 
         if (employments.length === 0) {
+          setIsSearch(false);
+          setEmployeeUserEmployments([]);
           toastMessage({
             position: 'bottom',
             closeable: false,
