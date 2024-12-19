@@ -24,7 +24,7 @@ export const mockFormOfEmployment = {
     },
     {
       foeId: '2',
-      description: 'Vikariat timaavlönad',
+      description: 'Vikariat timavlönad',
     },
   ],
   message: 'success',

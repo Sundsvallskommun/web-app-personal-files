@@ -90,7 +90,7 @@ describe('Personal file', () => {
     cy.wait('@getDocument');
   });
 
-  it.only('Can delete document', () => {
+  it('Can delete document', () => {
     cy.intercept('DELETE', '**/document/2024-2281-56/files/4c2f0579-5b19-43de-8d53-7b1351835fae', {}).as(
       'deleteDocument'
     );
