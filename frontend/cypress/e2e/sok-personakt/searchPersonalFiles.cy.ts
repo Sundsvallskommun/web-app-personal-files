@@ -42,6 +42,13 @@ describe('Serach personal files', () => {
     cy.get(`[data-cy="pf-openbutton"] button`).contains('Öppna personakt').should('exist');
   });
 
+  it('Displays info message when typing wrong or too short search value for person number', () => {
+    cy.get('[data-cy="searchfield-personalfiles"][placeholder="Skriv personnummer"]').type('ABCD');
+    cy.get('div.sk-form-error-message')
+      .should('exist')
+      .contains('Personnumret måste innehålla siffror och efterlikna följande struktur: ååååmmddnnnn');
+  });
+
   it('Returns error message if no personal file', () => {
     cy.get('[data-cy="searchfield-personalfiles"][placeholder="Skriv personnummer"]').type('19990202-5678');
     cy.get('button.sk-search-field-button-search').contains('Sök').should('exist').click();
