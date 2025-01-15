@@ -47,7 +47,10 @@ type RoleADMapping = {
 };
 
 let roleADMapping: RoleADMapping = {};
-roleADMapping[process.env.ADMIN_GROUP.toLocaleLowerCase()] = 'pf_hr_admin';
+const admins = process.env.ADMIN_GROUPS.split(',');
+admins.forEach(admin => {
+  roleADMapping[admin.toLocaleLowerCase()] = 'pf_hr_admin';
+});
 roleADMapping[process.env.SUPERADMIN_GROUP.toLocaleLowerCase()] = 'pf_hr_superadmin';
 
 /**
