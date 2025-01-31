@@ -22,7 +22,7 @@ import { useUserStore } from '@services/user-service/user-service';
 
 interface documentDataList {
   fileName: string;
-  orignalName: string;
+  originalName: string;
   registrationNumber: string;
   id: string;
   mimeType: string;
@@ -92,7 +92,7 @@ export const EmploymentsTab: React.FC = () => {
             document.documentData.forEach((data) => {
               list.push({
                 fileName: `${data.fileName} ${documentTypes && `(${documentTypes.find((x) => x.type === document.type)?.displayName})`}`,
-                orignalName: data.fileName,
+                originalName: data.fileName,
                 registrationNumber: document.registrationNumber,
                 id: data.id,
                 mimeType: data.mimeType,
@@ -109,7 +109,7 @@ export const EmploymentsTab: React.FC = () => {
   const downloadDocument = (a: documentDataList, file: string) => {
     const uri = `data:${a.mimeType};base64,${file}`;
     const link = document.createElement('a');
-    const filename = a.orignalName;
+    const filename = a.originalName;
     link.href = uri;
     link.setAttribute('download', filename);
     document.body.appendChild(link);
