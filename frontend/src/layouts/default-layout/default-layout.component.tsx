@@ -1,4 +1,4 @@
-import { CookieConsent, Footer, Header, Link, Avatar, Spinner } from '@sk-web-gui/react';
+import { CookieConsent, Header, Link, Avatar, Spinner } from '@sk-web-gui/react';
 import Head from 'next/head';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
@@ -89,8 +89,6 @@ export default function DefaultLayout({
       </div>
 
       {postContent && postContent}
-
-      <Footer></Footer>
 
       <CookieConsent
         title={t('layout:cookies.title', { app: process.env.NEXT_PUBLIC_APP_NAME })}
