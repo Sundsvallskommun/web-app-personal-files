@@ -50,7 +50,6 @@ export interface CreateDocument {
   createdBy: string;
   confidentiality: {
     confidential: boolean;
-    legalCitation: string;
   };
   archive: boolean;
   description: string;

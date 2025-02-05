@@ -125,7 +125,7 @@ export class DocumentController {
   @Delete('/document/:registrationNumber/files/:documentDataId')
   @OpenAPI({ summary: 'Delete document data from employment' })
   @UseBefore(authMiddleware, hasPermissions(['canDeleteDocs']))
-  async deleteSupportAttachment(
+  async deleteDocument(
     @Req() req: RequestWithUser,
     @Param('registrationNumber') registrationNumber: string,
     @Param('documentDataId') documentDataId: string,
