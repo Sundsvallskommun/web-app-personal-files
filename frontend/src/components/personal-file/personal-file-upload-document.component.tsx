@@ -29,6 +29,7 @@ let formSchema = yup.object({
 
 export const PersonalFileUploadDocument: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const user = useUserStore((s) => s.user);
   const uploadDocument = useDocumentStore((s) => s.uploadDocument);
   const getDocuments = useDocumentStore((s) => s.getDocumentList);
   const documentTypes = useDocumentStore((s) => s.documentTypes);
@@ -131,13 +132,12 @@ export const PersonalFileUploadDocument: React.FC = () => {
             className="w-full"
             onClick={() => {
               const body: CreateDocument = {
-                createdBy: 'KAMO',
+                createdBy: user.username,
                 confidentiality: {
-                  confidential: true,
-                  legalCitation: '25 kap. 1 § OSL',
+                  confidential: false,
                 },
                 archive: false,
-                description: 'Beskrivning',
+                description: `${documentTypes ? documentTypes.find((t) => t.type === getValues().attachmentCatgory).displayName : 'Anställningsbevis'} för timavlönad`,
                 metadataList: [
                   {
                     key: 'employmentId',
