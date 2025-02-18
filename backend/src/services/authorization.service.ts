@@ -27,7 +27,6 @@ const roles = new Map<InternalRole, Partial<Permissions>>([
     'pf_hr_admin',
     {
       canReadPF: true,
-      canUploadDocs: true,
       canReadDocs: true,
     },
   ],
