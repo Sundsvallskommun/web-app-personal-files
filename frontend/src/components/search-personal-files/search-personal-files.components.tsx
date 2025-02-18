@@ -39,7 +39,7 @@ export const SearchPersonalFiles: React.FC = () => {
         const employments = [];
         res.data.map((users) =>
           users.employments.map((emp) => {
-            if (emp.isManual === false && emp.benefitGroupId === 44) {
+            if (emp.isManual === false /*&& emp.benefitGroupId === 44*/) {
               employments.push(emp);
             }
           })
