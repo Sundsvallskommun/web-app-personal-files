@@ -147,6 +147,14 @@ export const PersonalFileUploadDocument: React.FC = () => {
                     key: 'partyId',
                     value: `${employeeUsersEmployments[0].personId}`,
                   },
+                  {
+                    key: 'startDate',
+                    value: `${selectedEmployment.startDate}`,
+                  },
+                  {
+                    key: 'endDate',
+                    value: `${selectedEmployment.endDate}`,
+                  },
                 ],
                 type: getValues().attachmentCatgory,
               };
