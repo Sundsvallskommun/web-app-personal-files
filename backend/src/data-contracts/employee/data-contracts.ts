@@ -9,7 +9,15 @@
  * ---------------------------------------------------------------
  */
 
-export interface Employee {
+export interface Account {
+  domain?: string | null;
+  loginname?: string | null;
+  /** @format int32 */
+  companyId?: number;
+  emailAddress?: string | null;
+}
+
+export interface Employeev2 {
   /** @format uuid */
   personId?: string;
   personNumber?: string | null;
@@ -17,32 +25,9 @@ export interface Employee {
   givenname?: string | null;
   middlename?: string | null;
   lastname?: string | null;
-  loginname?: string | null;
-  emailAddress?: string | null;
-  referenceNumber?: string | null;
-  isManager?: boolean | null;
+  accounts?: Account[] | null;
+  referenceNumbers?: ReferenceNumberCompany[] | null;
   employments?: Employment[] | null;
-  employeeEvents?: EmployeeEvent[] | null;
-}
-
-export interface EmployeeEvent {
-  /** @format int32 */
-  companyId?: number;
-  /** @format date-time */
-  startDate?: string | null;
-  /** @format date-time */
-  endDate?: string | null;
-  title?: string | null;
-  /** @format int32 */
-  orgId?: number;
-  orgName?: string | null;
-  /** @format int32 */
-  topOrgId?: number;
-  topOrgName?: string | null;
-  /** @format int32 */
-  benefitGroupId?: number | null;
-  eventType?: string | null;
-  eventInfo?: string | null;
 }
 
 export interface Employment {
@@ -74,11 +59,6 @@ export interface Employment {
   empRowId?: string | null;
 }
 
-export interface LoginName {
-  domain?: string | null;
-  loginName?: string | null;
-}
-
 export interface Manager {
   /** @format uuid */
   personId?: string;
@@ -104,6 +84,50 @@ export interface ModelPostPersonImage {
   imageData?: string | null;
 }
 
+export interface NewEmployee {
+  /** @format uuid */
+  personId?: string;
+  personNumber?: string | null;
+  isClassified?: boolean;
+  givenname?: string | null;
+  middlename?: string | null;
+  lastname?: string | null;
+  accounts?: Account[] | null;
+  referenceNumbers?: ReferenceNumberCompany[] | null;
+  employments?: NewEmployment[] | null;
+}
+
+export interface NewEmployment {
+  /** @format int32 */
+  companyId?: number;
+  /** @format date-time */
+  startDate?: string;
+  /** @format date-time */
+  endDate?: string | null;
+  /** @format int32 */
+  employmentType?: number;
+  title?: string | null;
+  managerCode?: string | null;
+  /** @format int32 */
+  orgId?: number;
+  orgName?: string | null;
+  /** @format int32 */
+  topOrgId?: number;
+  topOrgName?: string | null;
+  /** @format int32 */
+  benefitGroupId?: number | null;
+  formOfEmploymentId?: string | null;
+  isManual?: boolean;
+  paTeam?: string | null;
+  isMainEmployment?: boolean;
+  isManager?: boolean | null;
+  manager?: Manager;
+  aid?: string | null;
+  empRowId?: string | null;
+  eventType?: string | null;
+  eventInfo?: string | null;
+}
+
 export interface PortalPersonData {
   /** @format uuid */
   personid?: string;
@@ -126,6 +150,7 @@ export interface PortalPersonData {
   referenceNumber?: string | null;
   isManager?: boolean;
   loginName?: string | null;
+  fullOrgTree?: string | null;
 }
 
 export interface ProblemDetails {
@@ -136,4 +161,10 @@ export interface ProblemDetails {
   detail?: string | null;
   instance?: string | null;
   [key: string]: any;
+}
+
+export interface ReferenceNumberCompany {
+  referenceNumber?: string | null;
+  /** @format int32 */
+  companyId?: number;
 }
