@@ -4,13 +4,13 @@
 
 Dessa APIer används i projektet, applikationsanvändaren i WSO2 måste prenumerera på dessa. Systemet utgår ifrån /backend/api-config.ts där dessa står specificerade.
 
-| API                | Version |
-| -------------------| ------: |
-| SimulatorServer    |     2.0 |
-| Employee           |     1.0 |
-| Citizen            |     2.0 |
-| Documents          |     3.0 |
-| FoundationObjects  |     1.0 |
+| API               | Version |
+| ----------------- | ------: |
+| SimulatorServer   |     2.0 |
+| Employee          |     2.0 |
+| Citizen           |     3.0 |
+| Documents         |     3.0 |
+| FoundationObjects |     1.0 |
 
 ## Utveckling
 
