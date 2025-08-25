@@ -15,6 +15,7 @@ export const {
   PORT,
   API_BASE_URL,
   LOG_FORMAT,
+  MUNICIPALITY_ID,
   LOG_DIR,
   ORIGIN,
   SECRET_KEY,
