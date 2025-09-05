@@ -7,6 +7,7 @@ import { Controller, Get, Header, QueryParam, Req, Res, UseBefore } from 'routin
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import ApiService from '@/services/api.service';
 import { PortalPersonData } from '@/interfaces/employee.interface';
+import { MUNICIPALITY_ID } from '@/config';
 interface ClientUser {
   name: string;
   givenName: string;
@@ -54,7 +55,7 @@ export class UserController {
   async getMyEmployeeImage(@Req() req: RequestWithUser, @QueryParam('width') width): Promise<any> {
     const { username } = req.user;
 
-    const userURL = `employee/1.0/portalpersondata/PERSONAL/${username}`;
+    const userURL = `employee/2.0/${MUNICIPALITY_ID}/portalpersondata/PERSONAL/${username}`;
     const personId = await this.apiService.get<PortalPersonData>({ url: userURL }, req.user).then(res => {
       return res.data.personid;
     });
@@ -63,7 +64,7 @@ export class UserController {
       throw new HttpException(400, 'Bad Request');
     }
 
-    const url = `employee/1.0/${personId}/personimage`;
+    const url = `employee/2.0/${MUNICIPALITY_ID}/${personId}/personimage`;
     const res = await this.apiService.get<any>(
       {
         url,
