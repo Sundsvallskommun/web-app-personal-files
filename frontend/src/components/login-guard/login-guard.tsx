@@ -26,13 +26,8 @@ export const LoginGuard: React.FC<{ children?: React.ReactNode }> = ({ children 
 
   // Routes by permissions
   if (router.pathname == '/sok-personakt' && !CANREADPF) {
-    router.push('/');
-    return (
-      <EmptyLayout
-        title={'Personakter'}
-        children={<p>Du saknar behörigheter för att nå den här sidan</p>}
-      ></EmptyLayout>
-    );
+    router.push('/login');
+    return <EmptyLayout children={<p>Du saknar behörigheter för att nå den här sidan</p>}></EmptyLayout>;
   }
 
   return <>{children}</>;

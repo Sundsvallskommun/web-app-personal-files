@@ -1,13 +1,10 @@
+'use client';
 import DefaultLayout from '@layouts/default-layout/default-layout.component';
 import Main from '@layouts/main/main.component';
 import { useUserStore } from '@services/user-service/user-service';
-import { Link, SearchField, FormLabel } from '@sk-web-gui/react';
-import NextLink from 'next/link';
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { capitalize } from 'underscore.string';
 import { SearchPersonalFiles } from '@components/search-personal-files/search-personal-files.components';
 import { SearchPersonalFileIcon } from '@components/app-icon/search-personal-file-icon.component';
+import { useTranslation } from 'react-i18next';
 
 export const SokPersonakt: React.FC = () => {
   const user = useUserStore((s) => s.user);
@@ -25,11 +22,5 @@ export const SokPersonakt: React.FC = () => {
     </DefaultLayout>
   );
 };
-
-export const getServerSideProps = async ({ locale }) => ({
-  props: {
-    ...(await serverSideTranslations(locale, ['common', 'example', 'layout'])),
-  },
-});
 
 export default SokPersonakt;

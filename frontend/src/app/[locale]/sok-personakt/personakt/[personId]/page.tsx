@@ -1,18 +1,22 @@
+'use client';
 import { PersonalFileEmploymentFilter } from '@components/personal-file/personal-file-employment-filter.components';
 import { PersonalFileUploadDocument } from '@components/personal-file/personal-file-upload-document.component';
 import DefaultLayout from '@layouts/default-layout/default-layout.component';
 import Main from '@layouts/main/main.component';
 import { useEmployeeStore } from '@services/employee-service/employee-service';
-import { useRouter } from 'next/router';
+import { useRouter, useParams, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { Divider } from '@sk-web-gui/react';
 import { TabsWrapper } from '@components/personal-file/tabs/tabs-wrapper.components';
 import { hasPermission } from '@utils/has-permission';
 import { useUserStore } from '@services/user-service/user-service';
+import { Employment } from '@interfaces/employee/employee';
 
 export default function Personakt() {
   const router = useRouter();
-  const routerPersonId = router.query['personId'];
+  const params = useParams();
+  const pathName = usePathname();
+  const routerPersonId = pathName?.split('/')[2];
   const employeeUsersEmployments = useEmployeeStore((s) => s.employeeUsersEmployments);
   const getEmploymentsById = useEmployeeStore((s) => s.getEmploymentsById);
   const setEmploymentslist = useEmployeeStore((s) => s.setEmployments);
@@ -24,15 +28,17 @@ export default function Personakt() {
   useEffect(() => {
     const loadPersonalFile = async () => {
       if (personId) {
-        if (router.pathname.includes(personId)) return;
+        if (pathName.includes(personId)) return;
         if (!employeeUsersEmployments.length || employeeUsersEmployments[0].personId !== personId) {
           await getEmploymentsById(routerPersonId as string);
-          const employments = [];
+          const employments: Employment[] = [];
 
-          employeeUsersEmployments.map((users) =>
-            users.employments.map((emp) => {
-              employments.push(emp);
-            })
+          employeeUsersEmployments.map(
+            (users) =>
+              users.employments &&
+              users.employments.map((emp) => {
+                employments.push(emp);
+              })
           );
 
           setEmploymentslist(employments);
@@ -44,12 +50,12 @@ export default function Personakt() {
       }
     };
 
-    if (router.isReady) {
+    if (router) {
       loadPersonalFile();
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.query, router.isReady]);
+  }, [params, router]);
 
   return (
     <DefaultLayout title={`${process.env.NEXT_PUBLIC_APP_NAME} - Personakt`}>

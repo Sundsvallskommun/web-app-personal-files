@@ -1,10 +1,11 @@
 import { CookieConsent, Header, Link, Avatar, Spinner } from '@sk-web-gui/react';
 import Head from 'next/head';
 import NextLink from 'next/link';
-import { useRouter } from 'next/router';
-import { useTranslation } from 'next-i18next';
+import { useRouter } from 'next/navigation';
+
 import { useUserStore } from '@services/user-service/user-service';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface DefaultLayoutProps {
   children: React.ReactNode;
@@ -40,7 +41,7 @@ export default function DefaultLayout({
 
   const setFocusToMain = () => {
     const contentElement = document.getElementById('content');
-    contentElement.focus();
+    contentElement?.focus();
   };
 
   const handleLogoClick = () => {

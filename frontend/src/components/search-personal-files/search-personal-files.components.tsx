@@ -1,5 +1,5 @@
 import { useUserStore } from '@services/user-service/user-service';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import {
   SearchField,
@@ -14,7 +14,8 @@ import {
 } from '@sk-web-gui/react';
 import { useEmployeeStore } from '@services/employee-service/employee-service';
 import { CornerDownRight } from 'lucide-react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
+import { Employment } from '@interfaces/employee/employee';
 
 export const SearchPersonalFiles: React.FC = () => {
   const [query, setQuery] = useState<string>('');
@@ -36,14 +37,18 @@ export const SearchPersonalFiles: React.FC = () => {
     getADUserEmployments(personalNumber)
       .then((res) => {
         setIsSearch(true);
-        const employments = [];
-        res.data.map((users) =>
-          users.employments.map((emp) => {
-            if (emp.isManual === false && emp.benefitGroupId === 44) {
-              employments.push(emp);
-            }
-          })
-        );
+        const employments: Employment[] = [];
+        if (res.data) {
+          res.data.map(
+            (users) =>
+              users.employments &&
+              users.employments.map((emp) => {
+                if (emp?.isManual === false && emp?.benefitGroupId === 44) {
+                  employments.push(emp);
+                }
+              })
+          );
+        }
 
         if (employments.length === 0) {
           setIsSearch(false);

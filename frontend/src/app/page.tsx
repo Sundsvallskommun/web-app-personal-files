@@ -1,12 +1,17 @@
+'use client';
+
 import LoaderFullScreen from '@components/loader/loader-fullscreen';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-export default function Index() {
+const RootIndex = () => {
   const router = useRouter();
+
   useEffect(() => {
     router.push('/sok-personakt');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [router]);
+
   return <LoaderFullScreen />;
-}
+};
+
+export default RootIndex;
