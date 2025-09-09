@@ -42,7 +42,7 @@ const AppLayout = ({ children }: ClientApplicationProps) => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    getMe();
+    getMe().catch((e) => {});
     setMounted(true);
   }, [getMe, setMounted]);
 

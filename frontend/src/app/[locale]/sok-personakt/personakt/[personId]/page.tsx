@@ -23,7 +23,7 @@ export default function Personakt() {
   const personId = routerPersonId && Array.isArray(routerPersonId) ? routerPersonId.pop() : null;
   const user = useUserStore((s) => s.user);
 
-  const { CANUPLOAD } = hasPermission(user);
+  const { CANUPLOAD, CANREADPF } = hasPermission(user);
 
   useEffect(() => {
     const loadPersonalFile = async () => {
@@ -51,7 +51,11 @@ export default function Personakt() {
     };
 
     if (router) {
-      loadPersonalFile();
+      if (!user || !CANREADPF) {
+        router.push('/login');
+      } else {
+        loadPersonalFile();
+      }
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

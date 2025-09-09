@@ -5,10 +5,20 @@ import { useUserStore } from '@services/user-service/user-service';
 import { SearchPersonalFiles } from '@components/search-personal-files/search-personal-files.components';
 import { SearchPersonalFileIcon } from '@components/app-icon/search-personal-file-icon.component';
 import { useTranslation } from 'react-i18next';
+import { useEffect } from 'react';
+import { hasPermission } from '@utils/has-permission';
+import { useRouter } from 'next/navigation';
 
 export const SokPersonakt: React.FC = () => {
   const user = useUserStore((s) => s.user);
+  const { CANREADPF } = hasPermission(user);
+  const router = useRouter();
+
   const { t } = useTranslation();
+
+  useEffect(() => {
+    (!user || !CANREADPF) && router.push('/login');
+  }, [router, user]);
 
   return (
     <DefaultLayout title={`${process.env.NEXT_PUBLIC_APP_NAME} - ${t('example:title')}`}>
