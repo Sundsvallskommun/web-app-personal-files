@@ -24,8 +24,7 @@ export interface PersonalFileUploadDocumentFormModel {
 }
 
 let formSchema = yup.object({
-  attachment: yup.mixed<File>().required('Du måste välja en fil'),
-  attachmentCatgory: yup.string().required('Du måste välja en kategori'),
+  attachmentCatgory: yup.string().required(),
 });
 
 export const PersonalFileUploadDocument: React.FC = () => {
@@ -67,10 +66,10 @@ export const PersonalFileUploadDocument: React.FC = () => {
   const attachment = watch('attachment');
 
   useEffect(() => {
+    const allowedTypes = ['application/pdf'];
     if (getValues()?.attachment) {
-      const attachmentFile = getValues()?.attachment;
-      const attachmentTypeget = attachmentFile?.name?.split('.').pop();
-      if (attachmentTypeget !== 'pdf') {
+      const attachmentTypeget: string = getValues()?.attachment[0]?.name.split('.').pop();
+      if (allowedTypes.find((x) => x === attachmentTypeget)) {
         setFileError('Fel filtyp, välj en pdf');
       } else {
         setFileError('');
@@ -102,7 +101,7 @@ export const PersonalFileUploadDocument: React.FC = () => {
               />
               <Input
                 className="w-full"
-                value={getValues()?.attachment ? getValues()?.attachment?.name : ''}
+                value={getValues()?.attachment ? getValues()?.attachment[0]?.name : ''}
                 readOnly
                 placeholder="Bläddra bland dokument"
               />
@@ -139,7 +138,7 @@ export const PersonalFileUploadDocument: React.FC = () => {
                   confidential: false,
                 },
                 archive: false,
-                description: `${documentTypes ? documentTypes.find((t) => t.type === getValues().attachmentCatgory)?.displayName : 'Anställningsbevis'} för timavlönad`,
+                description: `${documentTypes ? documentTypes.find((t) => t.type === getValues().attachmentCatgory).displayName : 'Anställningsbevis'} för timavlönad`,
                 metadataList: [
                   {
                     key: 'employmentId',
@@ -161,7 +160,7 @@ export const PersonalFileUploadDocument: React.FC = () => {
                 type: getValues().attachmentCatgory,
               };
 
-              return uploadDocument(body, getValues().attachment)
+              return uploadDocument(body, getValues().attachment[0])
                 .then(async (res) => {
                   if (res.data) {
                     toastMessage({
@@ -174,11 +173,11 @@ export const PersonalFileUploadDocument: React.FC = () => {
                     await getDocuments([
                       {
                         key: 'employmentId',
-                        matchesAny: [selectedEmployment.empRowId ?? ''],
+                        matchesAny: [selectedEmployment.empRowId],
                       },
                       {
                         key: 'partyId',
-                        matchesAny: [employeeUsersEmployments[0].personId ?? ''],
+                        matchesAny: [employeeUsersEmployments[0].personId],
                       },
                     ]);
                     closeHandler();

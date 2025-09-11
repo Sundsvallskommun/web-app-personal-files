@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, use, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import 'dayjs/locale/sv';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
@@ -10,8 +10,6 @@ import { useLocalStorage } from '@utils/use-localstorage.hook';
 import { useShallow } from 'zustand/react/shallow';
 import { useUserStore } from '@services/user-service/user-service';
 import LoaderFullScreen from '@components/loader/loader-fullscreen';
-import { hasPermission } from '@utils/has-permission';
-import EmptyLayout from '@layouts/empty-layout/empty-layout.component';
 import { usePathname, useRouter } from 'next/navigation';
 
 dayjs.extend(utc);
