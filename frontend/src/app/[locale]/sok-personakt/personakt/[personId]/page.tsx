@@ -24,7 +24,7 @@ export default function Personakt() {
   const personId = pathName?.split('/')[3] ? pathName?.split('/')[3] : null;
   const user = useUserStore((s) => s.user);
 
-  const { CANUPLOAD } = hasPermission(user);
+  const { CANUPLOAD, CANREADPF } = hasPermission(user);
 
   useEffect(() => {
     const loadPersonalFile = async () => {
@@ -50,11 +50,15 @@ export default function Personakt() {
     };
 
     if (router) {
-      loadPersonalFile();
+      if (!CANREADPF) {
+        router.push('/login');
+      } else {
+        loadPersonalFile();
+      }
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router, query]);
+  }, [router, query, CANREADPF]);
 
   return (
     <DefaultLayout title={`${process.env.NEXT_PUBLIC_APP_NAME} - Personakt`}>

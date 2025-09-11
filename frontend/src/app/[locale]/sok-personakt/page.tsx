@@ -7,18 +7,21 @@ import { SearchPersonalFileIcon } from '@components/app-icon/search-personal-fil
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { hasPermission } from '@utils/has-permission';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 export const SokPersonakt: React.FC = () => {
   const user = useUserStore((s) => s.user);
   const { CANREADPF } = hasPermission(user);
   const router = useRouter();
+  const pathName = usePathname();
 
   const { t } = useTranslation();
 
   useEffect(() => {
-    (!user || !CANREADPF) && router.push('/login');
-  }, [router, user]);
+    if (!CANREADPF) {
+      router.push('/login');
+    }
+  }, [router, CANREADPF]);
 
   return (
     <DefaultLayout title={`${process.env.NEXT_PUBLIC_APP_NAME} - ${t('example:title')}`}>

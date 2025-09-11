@@ -44,20 +44,12 @@ const AppLayout = ({ children }: ClientApplicationProps) => {
   const pathName = usePathname();
   const colorScheme = useLocalStorage(useShallow((state) => state.colorScheme));
   const getMe = useUserStore((state) => state.getMe);
-  const user = useUserStore((state) => state.user);
-  const { CANREADPF } = hasPermission(user);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     getMe().catch((e) => {});
     setMounted(true);
-  }, [getMe, setMounted]);
-
-  useEffect(() => {
-    if (!user || !CANREADPF || (!CANREADPF && pathName.includes('sok-personakt'))) {
-      router.push('/login');
-    }
-  }, [router, user]);
+  }, [getMe, router, setMounted]);
 
   if (!mounted) {
     return <LoaderFullScreen />;

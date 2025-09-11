@@ -24,7 +24,8 @@ export interface PersonalFileUploadDocumentFormModel {
 }
 
 let formSchema = yup.object({
-  attachmentCatgory: yup.string().required(),
+  attachment: yup.mixed<File>().required('Du måste välja en fil'),
+  attachmentCatgory: yup.string().required('Du måste välja en kategori'),
 });
 
 export const PersonalFileUploadDocument: React.FC = () => {
@@ -68,7 +69,7 @@ export const PersonalFileUploadDocument: React.FC = () => {
   useEffect(() => {
     if (getValues()?.attachment) {
       const attachmentFile = getValues()?.attachment;
-      const attachmentTypeget = attachmentFile?.name.split('.').pop();
+      const attachmentTypeget = attachmentFile?.name?.split('.').pop();
       if (attachmentTypeget !== 'pdf') {
         setFileError('Fel filtyp, välj en pdf');
       } else {
