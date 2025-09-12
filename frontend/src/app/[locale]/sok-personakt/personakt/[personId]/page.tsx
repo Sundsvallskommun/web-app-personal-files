@@ -58,14 +58,14 @@ export default function Personakt() {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router, query, CANREADPF]);
+  }, [router, query]);
 
   return (
     <DefaultLayout title={`${process.env.NEXT_PUBLIC_APP_NAME} - Personakt`}>
       <Main>
         <div className="flex justify-between items-center max-w-[996px] w-full m-auto">
           <h1 className="w-fit">
-            {employeeUsersEmployments[0].givenname} {employeeUsersEmployments[0].lastname}
+            {employeeUsersEmployments[0]?.givenname} {employeeUsersEmployments[0]?.lastname}
           </h1>
           <div className="flex gap-16">
             <PersonalFileEmploymentFilter />

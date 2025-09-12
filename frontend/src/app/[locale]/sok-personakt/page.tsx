@@ -17,11 +17,11 @@ export const SokPersonakt: React.FC = () => {
 
   const { t } = useTranslation();
 
-  useEffect(() => {
-    if (!CANREADPF) {
-      router.push('/login');
-    }
-  }, [router, CANREADPF]);
+  // useEffect(() => {
+  //   if (!CANREADPF) {
+  //     router.push('/login');
+  //   }
+  // }, [CANREADPF]);
 
   return (
     <DefaultLayout title={`${process.env.NEXT_PUBLIC_APP_NAME} - ${t('example:title')}`}>

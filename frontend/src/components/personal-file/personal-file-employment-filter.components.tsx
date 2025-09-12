@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 export interface PersonalFileEmploymentFilterModel {
-  employmentId: string;
+  employmentId: string | null;
 }
 
 export const PersonalFileEmploymentFilter: React.FC = () => {
@@ -23,7 +23,10 @@ export const PersonalFileEmploymentFilter: React.FC = () => {
 
   const employmentId = watch('employmentId');
   useEffect(() => {
-    setSelectedEmployment(employmentslist.find((x) => x.empRowId === employmentId));
+    const foundEmployment = employmentslist.find((x) => x.empRowId === employmentId);
+    if (foundEmployment) {
+      setSelectedEmployment(foundEmployment);
+    }
   }, [employmentId]);
 
   return (
@@ -31,7 +34,7 @@ export const PersonalFileEmploymentFilter: React.FC = () => {
       <FormLabel>Visa anställning:</FormLabel>
       <Select
         data-cy="selectemployment"
-        value={employmentId}
+        value={employmentId || ''}
         onChange={(e) => {
           setValue('employmentId', e.target.value);
           trigger('employmentId');
@@ -39,7 +42,7 @@ export const PersonalFileEmploymentFilter: React.FC = () => {
       >
         {employmentslist.map((emp, idx) => {
           return (
-            <Select.Option value={emp.empRowId} key={`employment-${idx}`}>
+            <Select.Option value={emp.empRowId ? emp.empRowId : ''} key={`employment-${idx}`}>
               {emp.title}
             </Select.Option>
           );

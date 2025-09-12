@@ -138,7 +138,7 @@ export const PersonalFileUploadDocument: React.FC = () => {
                   confidential: false,
                 },
                 archive: false,
-                description: `${documentTypes ? documentTypes.find((t) => t.type === getValues().attachmentCatgory).displayName : 'Anställningsbevis'} för timavlönad`,
+                description: `${documentTypes ? documentTypes.find((t) => t.type === getValues().attachmentCatgory)?.displayName : 'Anställningsbevis'} för timavlönad`,
                 metadataList: [
                   {
                     key: 'employmentId',
@@ -173,11 +173,11 @@ export const PersonalFileUploadDocument: React.FC = () => {
                     await getDocuments([
                       {
                         key: 'employmentId',
-                        matchesAny: [selectedEmployment.empRowId],
+                        matchesAny: [selectedEmployment.empRowId ?? ''],
                       },
                       {
                         key: 'partyId',
-                        matchesAny: [employeeUsersEmployments[0].personId],
+                        matchesAny: [employeeUsersEmployments[0].personId ?? ''],
                       },
                     ]);
                     closeHandler();

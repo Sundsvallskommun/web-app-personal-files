@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { i18nRouter } from 'next-i18n-router';
-import { envs } from '../middleware-envs';
 import i18nConfig from './app/i18nConfig';
+import { envs } from 'middleware-envs';
 
 export async function middleware(req: NextRequest) {
   const { pathname, origin } = req.nextUrl;

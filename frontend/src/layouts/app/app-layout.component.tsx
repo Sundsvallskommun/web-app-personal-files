@@ -11,6 +11,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { useUserStore } from '@services/user-service/user-service';
 import LoaderFullScreen from '@components/loader/loader-fullscreen';
 import { usePathname, useRouter } from 'next/navigation';
+import { hasPermission } from '@utils/has-permission';
 
 dayjs.extend(utc);
 dayjs.locale('sv');
@@ -43,11 +44,25 @@ const AppLayout = ({ children }: ClientApplicationProps) => {
   const colorScheme = useLocalStorage(useShallow((state) => state.colorScheme));
   const getMe = useUserStore((state) => state.getMe);
   const [mounted, setMounted] = useState(false);
+  const user = useUserStore((s) => s.user);
+  const { CANREADPF } = hasPermission(user);
 
   useEffect(() => {
-    getMe().catch((e) => {});
+    getMe();
     setMounted(true);
   }, [getMe, router, setMounted]);
+
+  useEffect(() => {
+    if (user) {
+      if (!CANREADPF && pathName.includes('sok-personakt')) {
+        router.push('/login');
+      } else if (CANREADPF && pathName.includes('sok-personakt')) {
+        router.push(pathName);
+      }
+    } else {
+      router.push('/login');
+    }
+  }, [user]);
 
   if (!mounted) {
     return <LoaderFullScreen />;

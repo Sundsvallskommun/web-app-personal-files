@@ -12,12 +12,12 @@ const Index = () => {
   const { CANREADPF } = hasPermission(user);
 
   useEffect(() => {
-    if (!CANREADPF) {
-      router.push('/login');
-    } else {
+    if (CANREADPF) {
       router.push('/sok-personakt');
+    } else {
+      router.push('/login');
     }
-  }, [router, CANREADPF]);
+  }, [CANREADPF]);
 
   return <LoaderFullScreen />;
 };

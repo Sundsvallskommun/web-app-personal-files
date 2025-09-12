@@ -7,9 +7,13 @@ export interface AppContextInterface {
   setDefaults: () => void;
 }
 
-const AppContext = createContext<AppContextInterface>(null);
+const AppContext = createContext<AppContextInterface>({
+  isCookieConsentOpen: true,
+  setIsCookieConsentOpen: () => {},
+  setDefaults: () => {},
+});
 
-export function AppWrapper({ children }) {
+export function AppWrapper({ children }: React.PropsWithChildren<{}>) {
   const contextDefaults = {
     isCookieConsentOpen: true,
   };
