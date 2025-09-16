@@ -12,7 +12,6 @@ import { useShallow } from 'zustand/react/shallow';
 const Exempelsida: React.FC = () => {
   const user = useUserStore(useShallow((s) => s.user));
   const { t } = useTranslation();
-  console.log('user', user);
   return (
     <DefaultLayout>
       <Main>

@@ -6,12 +6,10 @@ import { ApiResponse, apiService } from '@services/api-service';
 import {
   CreateDocument,
   Direction,
-  Document,
   MetaData,
   SearchDocument,
   DocumentType,
   PageDocument,
-  DocumentData,
 } from '@interfaces/document/document';
 import { toBase64 } from '@utils/toBase64';
 
@@ -182,7 +180,7 @@ export const useDocumentStore = createWithEqualityFn<
           if (registrationNumber && documentDataId) {
             res = await deleteDocument(registrationNumber, documentDataId);
           }
-          return { data: res.data };
+          return { data: res };
         },
         reset: () => {
           set(initialState);

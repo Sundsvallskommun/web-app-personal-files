@@ -37,7 +37,7 @@ export const generateMetadata = async ({ params }: LocaleLayoutProps) => {
 
   const title =
     path ?
-      `${process.env.NEXT_PUBLIC_APP_NAME} - ${t(`paths:${path}.title`, { defaultValue: pathName })}`
+      `${process.env.NEXT_PUBLIC_APP_NAME} ${t(`paths:${path}.title`, { defaultValue: '' }) !== '' ? `-  ${t(`paths:${path}.title`, { defaultValue: '' })}` : ''}`
     : process.env.NEXT_PUBLIC_APP_NAME;
   const description = t(`paths:${path}.description`, { defaultValue: '' });
 

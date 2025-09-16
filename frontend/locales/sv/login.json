@@ -1,5 +1,5 @@
 {
-  "description": "Beskrivning av appen",
+  "description": "Sök och hantera personakter",
   "errors": {
     "NOT_AUTHORIZED": "Inte inloggad",
     "SAML_MISSING_GROUP": "Användaren saknar rätt grupper",

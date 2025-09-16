@@ -5,7 +5,7 @@ import 'dayjs/locale/sv';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import updateLocale from 'dayjs/plugin/updateLocale';
-import { GuiProvider } from '@sk-web-gui/react';
+import { ConfirmationDialogContextProvider, GuiProvider } from '@sk-web-gui/react';
 import { useLocalStorage } from '@utils/use-localstorage.hook';
 import { useShallow } from 'zustand/react/shallow';
 import { useUserStore } from '@services/user-service/user-service';
@@ -68,7 +68,11 @@ const AppLayout = ({ children }: ClientApplicationProps) => {
     return <LoaderFullScreen />;
   }
 
-  return <GuiProvider colorScheme={colorScheme}>{children}</GuiProvider>;
+  return (
+    <ConfirmationDialogContextProvider>
+      <GuiProvider colorScheme={colorScheme}>{children}</GuiProvider>
+    </ConfirmationDialogContextProvider>
+  );
 };
 
 export default AppLayout;

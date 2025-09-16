@@ -17,16 +17,24 @@ export default function Personakt() {
   const router = useRouter();
   const query = useSearchParams();
   const pathName = usePathname();
-  const routerPersonId = pathName?.split('/')[3];
+  const routerPersonId = pathName?.split('/')[2];
   const employeeUsersEmployments = useEmployeeStore((s) => s.employeeUsersEmployments);
   const getEmploymentsById = useEmployeeStore((s) => s.getEmploymentsById);
   const setEmploymentslist = useEmployeeStore((s) => s.setEmployments);
-  const personId = pathName?.split('/')[3] ? pathName?.split('/')[3] : null;
+  const personId = pathName?.split('/')[2] ? pathName?.split('/')[2] : null;
   const user = useUserStore((s) => s.user);
+  const setEmpIsLoading = useEmployeeStore((s) => s.setEmpIsLoading);
 
   const { CANUPLOAD, CANREADPF } = hasPermission(user);
 
   useEffect(() => {
+    if (!user || !CANREADPF) {
+      router.push('/login');
+    }
+  }, [user]);
+
+  useEffect(() => {
+    setEmpIsLoading(false);
     const loadPersonalFile = async () => {
       if (personId) {
         if (pathName.includes(personId)) return;
@@ -50,18 +58,16 @@ export default function Personakt() {
     };
 
     if (router) {
-      if (!CANREADPF) {
-        router.push('/login');
-      } else {
+      if (CANREADPF) {
         loadPersonalFile();
       }
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router, query]);
+  }, [router, query, CANREADPF]);
 
   return (
-    <DefaultLayout title={`${process.env.NEXT_PUBLIC_APP_NAME} - Personakt`}>
+    <DefaultLayout>
       <Main>
         <div className="flex justify-between items-center max-w-[996px] w-full m-auto">
           <h1 className="w-fit">

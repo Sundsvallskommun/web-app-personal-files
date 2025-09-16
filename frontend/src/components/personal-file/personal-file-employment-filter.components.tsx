@@ -16,7 +16,7 @@ export const PersonalFileEmploymentFilter: React.FC = () => {
     defaultValues: {
       employmentId:
         selectedEmployment.empRowId ||
-        employmentslist.sort((a, b) => Number(b.isMainEmployment) - Number(a.isMainEmployment))[0].empRowId,
+        employmentslist.sort((a, b) => Number(b.isMainEmployment) - Number(a.isMainEmployment))[0]?.empRowId,
     },
     mode: 'onChange', // NOTE: Needed if we want to disable submit until valid
   });

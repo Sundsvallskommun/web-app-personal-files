@@ -3,7 +3,7 @@
 import LoaderFullScreen from '@components/loader/loader-fullscreen';
 import { useUserStore } from '@services/user-service/user-service';
 import { hasPermission } from '@utils/has-permission';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 const Index = () => {
