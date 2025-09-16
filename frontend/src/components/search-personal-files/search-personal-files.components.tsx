@@ -121,7 +121,7 @@ export const SearchPersonalFiles: React.FC = () => {
         : <></>}
       </div>
       {empIsLoading ?
-        <Spinner size={6} />
+        <Spinner size={5} />
       : isSearch && employmentslist.length !== 0 ?
         <Table data-cy="personalfile-result-table" className="max-w-[590px] w-full" background={true}>
           <Table.Header>

@@ -4,7 +4,7 @@ import Main from '@layouts/main/main.component';
 import { SearchPersonalFiles } from '@components/search-personal-files/search-personal-files.components';
 import { SearchPersonalFileIcon } from '@components/app-icon/search-personal-file-icon.component';
 
-export const SokPersonakt: React.FC = () => {
+export default function SokPersonakt() {
   return (
     <DefaultLayout>
       <Main>
@@ -16,6 +16,4 @@ export const SokPersonakt: React.FC = () => {
       </Main>
     </DefaultLayout>
   );
-};
-
-export default SokPersonakt;
+}

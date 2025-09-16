@@ -19,13 +19,13 @@ import { CreateDocument } from '@interfaces/document/document';
 import { useEmployeeStore } from '@services/employee-service/employee-service';
 
 export interface PersonalFileUploadDocumentFormModel {
-  attachment: File;
+  attachment: Array<File>;
   attachmentCatgory: string;
 }
 
 let formSchema = yup.object({
   attachment: yup
-    .mixed<File>()
+    .mixed<File[]>()
     .test('required', 'Välj en fil', (value) => !!value)
     .required('Välj en fil'),
   attachmentCatgory: yup.string().required('Välj en kategori'),
@@ -73,8 +73,8 @@ export const PersonalFileUploadDocument: React.FC = () => {
   useEffect(() => {
     const allowedTypes = ['pdf'];
     if (getValues()?.attachment) {
-      const attachmentTypeget: string = getValues()?.attachment[0]?.name.split('.').pop();
-      if (!allowedTypes.includes(attachmentTypeget)) {
+      const attachmentTypeget: string = getValues()?.attachment[0]?.name.split('.').pop() || '';
+      if (!allowedTypes.includes(attachmentTypeget) && attachmentTypeget !== '') {
         setFileError('Fel filtyp, välj en pdf');
       } else {
         setFileError('');
