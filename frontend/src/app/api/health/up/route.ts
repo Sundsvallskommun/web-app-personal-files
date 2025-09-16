@@ -18,7 +18,7 @@ export const GET = async () => {
 
   try {
     const agent = new https.Agent({
-      rejectUnauthorized: false,
+      rejectUnauthorized: true,
     });
     const health = await axios
       .get(`${process.env.NEXT_PUBLIC_API_URL}/health/up`, { httpsAgent: agent })
