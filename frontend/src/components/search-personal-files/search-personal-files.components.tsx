@@ -5,7 +5,6 @@ import { SearchField, FormLabel, Spinner, Table, Button, FormErrorMessage, useSn
 import { useEmployeeStore } from '@services/employee-service/employee-service';
 import { useRouter } from 'next/navigation';
 import { Employment } from '@interfaces/employee/employee';
-import { set } from 'react-hook-form';
 
 export const SearchPersonalFiles: React.FC = () => {
   const [query, setQuery] = useState<string>('');
@@ -31,14 +30,14 @@ export const SearchPersonalFiles: React.FC = () => {
         setIsSearch(true);
         const employments: Employment[] = [];
         if (res.data) {
-          res.data.map(
-            (users) =>
-              users.employments &&
+          res.data.map((users) =>
+            users.employments ?
               users.employments.map((emp) => {
                 if (emp?.isManual === false && emp?.benefitGroupId === 44) {
                   employments.push(emp);
                 }
               })
+            : null
           );
         }
 

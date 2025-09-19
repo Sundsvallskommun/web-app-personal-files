@@ -12,7 +12,6 @@ export interface ApiResponse<T = unknown> {
 export const handleError = (error: AxiosError<ApiResponse>) => {
   if (!protectedRoutes.includes(window?.location.pathname)) throw error;
 
-  //TODO: Refactor to be more compliant with NextJS routing standards
   if (error?.response?.status === 401 && !window?.location.pathname.includes('login')) {
     window.location.href = `/login?path=${window.location.pathname}&failMessage=${error.response.data.message}`;
   }

@@ -42,7 +42,7 @@ export const PersonalFileEmploymentFilter: React.FC = () => {
       >
         {employmentslist.map((emp, idx) => {
           return (
-            <Select.Option value={emp.empRowId ? emp.empRowId : ''} key={`employment-${idx}`}>
+            <Select.Option value={emp.empRowId ? emp.empRowId : ''} key={`employment-${emp.empRowId}`}>
               {emp.title}
             </Select.Option>
           );

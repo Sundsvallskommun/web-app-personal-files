@@ -2,7 +2,7 @@ interface EmptyLayoutProps {
   children: React.ReactNode;
 }
 
-export default function EmptyLayout({ children }: EmptyLayoutProps) {
+export default function EmptyLayout({ children }: Readonly<EmptyLayoutProps>) {
   return (
     <div className="EmptyLayout bg-background-content text-body">
       <div className="min-h-screen">{children}</div>

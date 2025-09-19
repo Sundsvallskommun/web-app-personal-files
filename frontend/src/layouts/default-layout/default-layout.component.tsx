@@ -36,14 +36,7 @@ export default function DefaultLayout({
 
   return (
     <div className="DefaultLayout full-page-layout">
-      <Link
-        as={NextLink}
-        href="#content"
-        onClick={setFocusToMain}
-        accessKey="s"
-        className="next-link-a"
-        data-cy="systemMessage-a"
-      >
+      <Link as={NextLink} href="#content" onClick={setFocusToMain} className="next-link-a" data-cy="systemMessage-a">
         {t('layout:header.goto_content')}
       </Link>
 

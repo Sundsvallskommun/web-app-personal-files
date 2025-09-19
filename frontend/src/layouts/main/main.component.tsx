@@ -4,7 +4,7 @@ interface MainProps {
   children: ReactNode;
 }
 
-export default function Main({ children }: MainProps) {
+export default function Main({ children }: Readonly<MainProps>) {
   return (
     <div className="container">
       <main id="content" tabIndex={-1}>
