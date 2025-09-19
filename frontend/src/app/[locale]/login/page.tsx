@@ -16,7 +16,7 @@ export default function Start() {
   const initalFocus = useRef<HTMLButtonElement>(null);
   const setInitalFocus = () => {
     setTimeout(() => {
-      initalFocus.current && initalFocus.current.focus();
+      initalFocus.current ? initalFocus.current.focus() : null;
     });
   };
 

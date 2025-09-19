@@ -21,9 +21,9 @@ export const generateMetadata = async ({ params }: LocaleLayoutProps) => {
   const { locale } = await params;
   const { t } = await initLocalization(locale, namespaces);
   const path = (await headers()).get('x-path');
+  const pathTitle = `paths:${path}.title`;
 
-  const pathTitleCheck =
-    t(`paths:${path}.title`, { defaultValue: '' }) !== '' ? `-  ${t(`paths:${path}.title`, { defaultValue: '' })}` : '';
+  const pathTitleCheck = t(pathTitle, { defaultValue: '' }) !== '' ? `-  ${t(pathTitle, { defaultValue: '' })}` : '';
 
   const title = path ? `${process.env.NEXT_PUBLIC_APP_NAME} ${pathTitleCheck}` : process.env.NEXT_PUBLIC_APP_NAME;
   const description = t(`paths:${path}.description`, { defaultValue: '' });

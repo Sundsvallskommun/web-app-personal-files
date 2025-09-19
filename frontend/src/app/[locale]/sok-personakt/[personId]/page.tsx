@@ -54,7 +54,7 @@ export default function Personakt() {
         if (!personId) {
           router.push('/sok-personakt');
         } else {
-          return;
+          router.push(pathName);
         }
       }
     };
