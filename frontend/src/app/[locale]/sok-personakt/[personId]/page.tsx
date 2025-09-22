@@ -51,11 +51,7 @@ export default function Personakt() {
           setEmploymentslist(employments);
         }
       } else {
-        if (!personId) {
-          router.push('/sok-personakt');
-        } else {
-          router.push(pathName);
-        }
+        !personId ? router.push('/sok-personakt') : router.push(pathName);
       }
     };
 
