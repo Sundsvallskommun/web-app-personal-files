@@ -1,5 +1,5 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const envalid = require('envalid');
-const { i18n } = require('./next-i18next.config');
 
 const authDependent = envalid.makeValidator((x) => {
   const authEnabled = process.env.HEALTH_AUTH === 'true';
@@ -24,7 +24,6 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 
 module.exports = withBundleAnalyzer({
   output: 'standalone',
-  i18n,
   images: {
     domains: [process.env.DOMAIN_NAME],
     formats: ['image/avif', 'image/webp'],
@@ -32,6 +31,11 @@ module.exports = withBundleAnalyzer({
   basePath: process.env.BASE_PATH,
   sassOptions: {
     prependData: `$basePath: '${process.env.BASE_PATH}';`,
+  },
+  transpilePackages: ['lucide-react'],
+  experimental: {
+    forceSwcTransforms: process.env.TEST === 'true' ? false : true,
+    optimizePackageImports: ['@sk-web-gui'],
   },
   async rewrites() {
     return [{ source: '/napi/:path*', destination: '/api/:path*' }];

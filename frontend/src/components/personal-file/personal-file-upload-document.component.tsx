@@ -19,12 +19,16 @@ import { CreateDocument } from '@interfaces/document/document';
 import { useEmployeeStore } from '@services/employee-service/employee-service';
 
 export interface PersonalFileUploadDocumentFormModel {
-  attachment: File;
+  attachment: Array<File>;
   attachmentCatgory: string;
 }
 
 let formSchema = yup.object({
-  attachmentCatgory: yup.string().required(),
+  attachment: yup
+    .mixed<File[]>()
+    .test('required', 'Välj en fil', (value) => !!value)
+    .required('Välj en fil'),
+  attachmentCatgory: yup.string().required('Välj en kategori'),
 });
 
 export const PersonalFileUploadDocument: React.FC = () => {
@@ -58,6 +62,7 @@ export const PersonalFileUploadDocument: React.FC = () => {
   } = useForm<PersonalFileUploadDocumentFormModel>({
     resolver: yupResolver(formSchema),
     defaultValues: {
+      attachment: undefined,
       attachmentCatgory: 'EMPLOYMENT_CERTIFICATE',
     },
     mode: 'onChange', // NOTE: Needed if we want to disable submit until valid
@@ -66,9 +71,10 @@ export const PersonalFileUploadDocument: React.FC = () => {
   const attachment = watch('attachment');
 
   useEffect(() => {
+    const allowedTypes = ['pdf'];
     if (getValues()?.attachment) {
-      const attachmentTypeget = getValues()?.attachment[0]?.name.split('.').pop();
-      if (attachmentTypeget !== 'pdf') {
+      const attachmentTypeget: string = getValues()?.attachment[0]?.name.split('.').pop() || '';
+      if (!allowedTypes.includes(attachmentTypeget) && attachmentTypeget !== '') {
         setFileError('Fel filtyp, välj en pdf');
       } else {
         setFileError('');
@@ -137,7 +143,7 @@ export const PersonalFileUploadDocument: React.FC = () => {
                   confidential: false,
                 },
                 archive: false,
-                description: `${documentTypes ? documentTypes.find((t) => t.type === getValues().attachmentCatgory).displayName : 'Anställningsbevis'} för timavlönad`,
+                description: `${documentTypes ? documentTypes.find((t) => t.type === getValues().attachmentCatgory)?.displayName : 'Anställningsbevis'} för timavlönad`,
                 metadataList: [
                   {
                     key: 'employmentId',
@@ -172,15 +178,15 @@ export const PersonalFileUploadDocument: React.FC = () => {
                     await getDocuments([
                       {
                         key: 'employmentId',
-                        matchesAny: [selectedEmployment.empRowId],
+                        matchesAny: [selectedEmployment.empRowId ?? ''],
                       },
                       {
                         key: 'partyId',
-                        matchesAny: [employeeUsersEmployments[0].personId],
+                        matchesAny: [employeeUsersEmployments[0].personId || ''],
                       },
                     ]);
                     closeHandler();
-                    reset();
+                    reset({ attachment: undefined, attachmentCatgory: 'EMPLOYMENT_CERTIFICATE' });
                   }
                 })
                 .catch((e) => {

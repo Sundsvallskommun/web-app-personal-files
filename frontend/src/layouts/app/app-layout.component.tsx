@@ -1,0 +1,78 @@
+'use client';
+
+import { ReactNode, useEffect, useState } from 'react';
+import 'dayjs/locale/sv';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import updateLocale from 'dayjs/plugin/updateLocale';
+import { ConfirmationDialogContextProvider, GuiProvider } from '@sk-web-gui/react';
+import { useLocalStorage } from '@utils/use-localstorage.hook';
+import { useShallow } from 'zustand/react/shallow';
+import { useUserStore } from '@services/user-service/user-service';
+import LoaderFullScreen from '@components/loader/loader-fullscreen';
+import { usePathname, useRouter } from 'next/navigation';
+import { hasPermission } from '@utils/has-permission';
+
+dayjs.extend(utc);
+dayjs.locale('sv');
+dayjs.extend(updateLocale);
+dayjs.updateLocale('sv', {
+  months: [
+    'Januari',
+    'Februari',
+    'Mars',
+    'April',
+    'Maj',
+    'Juni',
+    'Juli',
+    'Augusti',
+    'September',
+    'Oktober',
+    'November',
+    'December',
+  ],
+  monthsShort: ['Jan', 'Feb', 'Mar', 'Apr', 'Maj', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'],
+});
+
+interface ClientApplicationProps {
+  children: ReactNode;
+}
+
+const AppLayout = ({ children }: ClientApplicationProps) => {
+  const router = useRouter();
+  const pathName = usePathname();
+  const colorScheme = useLocalStorage(useShallow((state) => state.colorScheme));
+  const getMe = useUserStore((state) => state.getMe);
+  const [mounted, setMounted] = useState(false);
+  const user = useUserStore((s) => s.user);
+  const { CANREADPF } = hasPermission(user);
+
+  useEffect(() => {
+    getMe();
+    setMounted(true);
+  }, [getMe, router, setMounted]);
+
+  useEffect(() => {
+    if (user) {
+      if (!CANREADPF && pathName.includes('sok-personakt')) {
+        router.push('/login');
+      } else if (CANREADPF && pathName.includes('sok-personakt')) {
+        router.push(pathName);
+      }
+    } else {
+      router.push('/login');
+    }
+  }, [user]);
+
+  if (!mounted) {
+    return <LoaderFullScreen />;
+  }
+
+  return (
+    <ConfirmationDialogContextProvider>
+      <GuiProvider colorScheme={colorScheme}>{children}</GuiProvider>
+    </ConfirmationDialogContextProvider>
+  );
+};
+
+export default AppLayout;

@@ -59,7 +59,7 @@ export const useUserStore = createWithEqualityFn<State & Actions>()(
       ...initialState,
       setUser: (user) => set(() => ({ user })),
       getMe: async () => {
-        let user = get().user;
+        let user: User | undefined = get().user;
         const res = await getMe();
         if (!res.error) {
           user = res.data;
@@ -68,7 +68,7 @@ export const useUserStore = createWithEqualityFn<State & Actions>()(
         return { data: user };
       },
       getAvatar: async () => {
-        let avatar = get().avatar;
+        let avatar: string | undefined = get().avatar;
         const res = await getAvatar();
         if (!res.error) {
           avatar = res.data;

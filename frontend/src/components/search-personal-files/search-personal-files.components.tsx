@@ -1,20 +1,10 @@
 import { useUserStore } from '@services/user-service/user-service';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
-import {
-  SearchField,
-  FormLabel,
-  Spinner,
-  Table,
-  Button,
-  Icon,
-  FormErrorMessage,
-  Link,
-  useSnackbar,
-} from '@sk-web-gui/react';
+import { SearchField, FormLabel, Spinner, Table, Button, FormErrorMessage, useSnackbar } from '@sk-web-gui/react';
 import { useEmployeeStore } from '@services/employee-service/employee-service';
-import { CornerDownRight } from 'lucide-react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
+import { Employment } from '@interfaces/employee/employee';
 
 export const SearchPersonalFiles: React.FC = () => {
   const [query, setQuery] = useState<string>('');
@@ -27,6 +17,8 @@ export const SearchPersonalFiles: React.FC = () => {
   const employeeUsersEmployments = useEmployeeStore((s) => s.employeeUsersEmployments);
   const setSelectedEmployment = useEmployeeStore((s) => s.setSelectedEmployment);
   const setEmployeeUserEmployments = useEmployeeStore((s) => s.setEmployeeUserEmployments);
+  const empIsLoading = useEmployeeStore((s) => s.empIsLoading);
+  const setEmpIsLoading = useEmployeeStore((s) => s.setEmpIsLoading);
   const { t } = useTranslation();
   const router = useRouter();
   const toastMessage = useSnackbar();
@@ -36,14 +28,18 @@ export const SearchPersonalFiles: React.FC = () => {
     getADUserEmployments(personalNumber)
       .then((res) => {
         setIsSearch(true);
-        const employments = [];
-        res.data.map((users) =>
-          users.employments.map((emp) => {
-            if (emp.isManual === false && emp.benefitGroupId === 44) {
-              employments.push(emp);
-            }
-          })
-        );
+        const employments: Employment[] = [];
+        if (res.data) {
+          res.data.map((users) =>
+            users.employments ?
+              users.employments.map((emp) => {
+                if (emp?.isManual === false && emp?.benefitGroupId === 44) {
+                  employments.push(emp);
+                }
+              })
+            : null
+          );
+        }
 
         if (employments.length === 0) {
           setIsSearch(false);
@@ -123,8 +119,8 @@ export const SearchPersonalFiles: React.FC = () => {
           </FormErrorMessage>
         : <></>}
       </div>
-      {isSearch && employeeUsersEmployments.length === 0 ?
-        <Spinner size={6} />
+      {empIsLoading ?
+        <Spinner size={5} />
       : isSearch && employmentslist.length !== 0 ?
         <Table data-cy="personalfile-result-table" className="max-w-[590px] w-full" background={true}>
           <Table.Header>
@@ -146,10 +142,11 @@ export const SearchPersonalFiles: React.FC = () => {
                 <Button
                   variant="tertiary"
                   onClick={() => {
+                    setEmpIsLoading(true);
                     setSelectedEmployment(
                       employmentslist.sort((a, b) => Number(b.isMainEmployment) - Number(a.isMainEmployment))[0]
                     );
-                    router.push(`sok-personakt/personakt/${employeeUsersEmployments[0].personId}`);
+                    router.push(`sok-personakt/${employeeUsersEmployments[0].personId}`);
                   }}
                 >
                   Öppna personakt

@@ -1,6 +1,5 @@
-import { Employee, Employment, LoginName, PortalPersonData } from '@interfaces/employee/employee';
+import { Employee, Employment, LoginName } from '@interfaces/employee/employee';
 import { ApiResponse, apiService } from '@services/api-service';
-import { emptyEmployee } from './defaults';
 import { createWithEqualityFn } from 'zustand/traditional';
 import { devtools, persist } from 'zustand/middleware';
 import { ServiceResponse } from '@interfaces/services';
@@ -66,7 +65,7 @@ export async function searchADUserByPersonNumber(personalNumber: string) {
           return res.data.data;
         })
         .then((res) => {
-          return searchADUserByUsername(res[0].loginName);
+          return searchADUserByUsername(res[0].loginName || '');
         });
 }
 
@@ -74,6 +73,7 @@ interface State {
   selectedEmployment: Employment;
   employeeUsersEmployments: Employee[];
   employmentslist: Employment[];
+  empIsLoading: boolean;
 }
 interface Actions {
   setSelectedEmployment: (selectedEmployment: Employment) => void;
@@ -82,6 +82,7 @@ interface Actions {
   setEmployeeUserEmployments: (employeeUsersEmployments: Employee[]) => void;
   getADUserEmployments: (personalNumber: string) => Promise<ServiceResponse<Employee[]>>;
   getEmploymentsById: (personId: string) => Promise<ServiceResponse<Employee[]>>;
+  setEmpIsLoading: (empIsLoading: boolean) => void;
   reset: () => void;
 }
 
@@ -89,6 +90,7 @@ const initialState: State = {
   selectedEmployment: {},
   employeeUsersEmployments: [],
   employmentslist: [],
+  empIsLoading: false,
 };
 
 export const useEmployeeStore = createWithEqualityFn<
@@ -109,18 +111,20 @@ export const useEmployeeStore = createWithEqualityFn<
     persist(
       (set, get) => ({
         ...initialState,
+        setEmpIsLoading: (empIsLoading) => set(() => ({ empIsLoading })),
         setEmployeeUserEmployments: (employeeUsersEmployments) => set(() => ({ employeeUsersEmployments })),
         setSelectedEmployment: (selectedEmployment) => set(() => ({ selectedEmployment })),
         setEmployee: (employeeUsersEmployments) => set(() => ({ employeeUsersEmployments })),
         setEmployments: (employmentslist) => set(() => ({ employmentslist })),
         getADUserEmployments: async (personalNumber: string) => {
           let employeeUsersEmployments = get().employeeUsersEmployments;
+          set(() => ({ empIsLoading: true }));
           const userInfo = await searchADUserByPersonNumber(personalNumber);
           const res = await searchHitADUser(userInfo.personid);
 
           if (res) {
             employeeUsersEmployments = res;
-            set(() => ({ employeeUsersEmployments: employeeUsersEmployments }));
+            set(() => ({ employeeUsersEmployments: employeeUsersEmployments, empIsLoading: false }));
           }
           return { data: employeeUsersEmployments };
         },

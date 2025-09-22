@@ -1,0 +1,37 @@
+import { ReactNode } from 'react';
+import { headers } from 'next/headers';
+import LocalizationProvider from '@components/localization-provider/localization-provider';
+import initLocalization from '../i18n';
+
+interface LocaleLayoutProps {
+  children: ReactNode;
+  params: Promise<{ locale: string }>;
+}
+
+const namespaces = ['common', 'paths', 'layout', 'login', 'sok-personakt'];
+
+const LocaleLayout = async ({ children, params }: LocaleLayoutProps) => {
+  const { locale } = await params;
+  const { resources } = await initLocalization(locale, namespaces);
+
+  return <LocalizationProvider {...{ locale, resources, namespaces }}>{children}</LocalizationProvider>;
+};
+
+export const generateMetadata = async ({ params }: LocaleLayoutProps) => {
+  const { locale } = await params;
+  const { t } = await initLocalization(locale, namespaces);
+  const path = (await headers()).get('x-path');
+  const pathTitle = `paths:${path}.title`;
+
+  const pathTitleCheck = t(pathTitle, { defaultValue: '' }) !== '' ? `-  ${t(pathTitle, { defaultValue: '' })}` : '';
+
+  const title = path ? `${process.env.NEXT_PUBLIC_APP_NAME} ${pathTitleCheck}` : process.env.NEXT_PUBLIC_APP_NAME;
+  const description = t(`paths:${path}.description`, { defaultValue: '' });
+
+  return {
+    title,
+    description,
+  };
+};
+
+export default LocaleLayout;

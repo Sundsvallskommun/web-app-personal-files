@@ -1,0 +1,10 @@
+{
+  "/login": {
+    "title": "Inloggningssida",
+    "description": "Beskrivning utav inloggningssidan"
+  },
+  "/sok-personakt": {
+    "title": "Sök personakt",
+    "description": "Beskrivning utav exempelsidan"
+  }
+}

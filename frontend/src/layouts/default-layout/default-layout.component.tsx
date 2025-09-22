@@ -1,15 +1,12 @@
-import { CookieConsent, Header, Link, Avatar, Spinner } from '@sk-web-gui/react';
-import Head from 'next/head';
+'use client';
+
+import { CookieConsent, Footer, Header, Link } from '@sk-web-gui/react';
 import NextLink from 'next/link';
-import { useRouter } from 'next/router';
-import { useTranslation } from 'next-i18next';
-import { useUserStore } from '@services/user-service/user-service';
-import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 
 interface DefaultLayoutProps {
   children: React.ReactNode;
-  title?: string;
-  postTitle?: string;
   headerTitle?: string;
   headerSubtitle?: string;
   preContent?: React.ReactNode;
@@ -18,8 +15,6 @@ interface DefaultLayoutProps {
 }
 
 export default function DefaultLayout({
-  title,
-  postTitle,
   headerTitle,
   headerSubtitle,
   children,
@@ -28,41 +23,22 @@ export default function DefaultLayout({
   logoLinkHref = '/',
 }: DefaultLayoutProps) {
   const router = useRouter();
-  const layoutTitle = `${process.env.NEXT_PUBLIC_APP_NAME}${headerSubtitle ? ` - ${headerSubtitle}` : ''}`;
-  const fullTitle = postTitle ? `${layoutTitle} - ${postTitle}` : `${layoutTitle}`;
-
   const { t } = useTranslation();
-  const user = useUserStore((s) => s.user);
-  const getAvatar = useUserStore((s) => s.getAvatar);
-  const avatar = useUserStore((s) => s.avatar);
-
-  const [avatarIsLoading, setAvatarIsLoading] = useState(false);
 
   const setFocusToMain = () => {
     const contentElement = document.getElementById('content');
-    contentElement.focus();
+    contentElement?.focus();
   };
 
   const handleLogoClick = () => {
     router.push(logoLinkHref);
   };
-  useEffect(() => {
-    setAvatarIsLoading(true);
-    getAvatar().then(() => setAvatarIsLoading(false));
-  }, []);
 
   return (
     <div className="DefaultLayout full-page-layout">
-      <Head>
-        <title>{title ? title : fullTitle}</title>
-        <meta name="description" content={`${process.env.NEXT_PUBLIC_APP_NAME}`} />
-      </Head>
-
-      <NextLink href="#content" legacyBehavior passHref>
-        <a onClick={setFocusToMain} accessKey="s" className="next-link-a" data-cy="systemMessage-a">
-          {t('layout:header.goto_content')}
-        </a>
-      </NextLink>
+      <Link as={NextLink} href="#content" onClick={setFocusToMain} className="next-link-a" data-cy="systemMessage-a">
+        {t('layout:header.goto_content')}
+      </Link>
 
       <Header
         data-cy="nav-header"
@@ -70,15 +46,6 @@ export default function DefaultLayout({
         subtitle={headerSubtitle ? headerSubtitle : ''}
         aria-label={`${headerTitle ? headerTitle : process.env.NEXT_PUBLIC_APP_NAME} ${headerSubtitle}`}
         logoLinkOnClick={handleLogoClick}
-        userMenu={
-          <div className="flex gap-12 items-center">
-            {avatarIsLoading ?
-              <Spinner />
-            : <Avatar data-cy="usermenu" initials={`${user.givenName[0]}${user.surname[0]}`} imageUrl={`${avatar}`} />}
-
-            <span className="font-bold">{user.name}</span>
-          </div>
-        }
         LogoLinkWrapperComponent={<NextLink legacyBehavior href={logoLinkHref} passHref />}
       />
 
@@ -89,6 +56,8 @@ export default function DefaultLayout({
       </div>
 
       {postContent && postContent}
+
+      <Footer></Footer>
 
       <CookieConsent
         title={t('layout:cookies.title', { app: process.env.NEXT_PUBLIC_APP_NAME })}
