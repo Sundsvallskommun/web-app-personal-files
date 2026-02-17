@@ -22,6 +22,7 @@ import {
   BASE_URL_PREFIX,
   CREDENTIALS,
   LOG_FORMAT,
+  MUNICIPALITY_ID,
   NODE_ENV,
   ORIGIN,
   PORT,
@@ -46,8 +47,6 @@ import { Profile } from './interfaces/profile.interface';
 import { HttpException } from './exceptions/HttpException';
 import { join } from 'path';
 import { isValidUrl } from './utils/util';
-import { additionalConverters } from './utils/custom-validation-classes';
-import { User } from './interfaces/users.interface';
 import { authorizeGroups, getPermissions, getRole } from './services/authorization.service';
 
 const SessionStoreCreate = SESSION_MEMORY ? createMemoryStore(session) : createFileStore(session);
@@ -120,7 +119,7 @@ const samlStrategy = new Strategy(
 
     try {
       // const personNumber = profile.citizenIdentifier;
-      // const citizenResult = await apiService.get<any>({ url: `citizen/2.0/${personNumber}/guid` });
+      // const citizenResult = await apiService.get<any>({ url: `citizen/3.0/${MUNICIPALITY_ID}/${personNumber}/guid` });
       // const { data: personId } = citizenResult;
 
       // if (!personId) {
